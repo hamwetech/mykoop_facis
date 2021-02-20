@@ -24,7 +24,7 @@
         <link rel="stylesheet" href="{% static 'bower_components/metrics-graphics/dist/metricsgraphics.css' %}">
         <!-- chartist -->
         <link rel="stylesheet" href="{% static 'bower_components/chartist/dist/chartist.min.css' %}">
-    
+
     <!-- uikit -->
     <link rel="stylesheet" href="{% static 'bower_components/uikit/css/uikit.almost-flat.min.css' %}" media="all">
 
@@ -54,18 +54,19 @@
         <div class="header_main_content">
             <nav class="uk-navbar">
                   <div class="main_logo_top">
-                        <h2><a href="." style="color:#fff !important;"><img src="{% static 'assets/img/logo.png' %}" alt="" width="80"/> NECPA</a></h2>
+                        <h2><a href="." style="color:#fff !important;">
+                            {% if request.coop %} <img src="{{ MEDIA_URL }}{{ request.coop.logo }} " alt="" width="120"/>...</a> {% else %} <img src="{% static 'assets/img/logo.png' %}" alt="" width="120"/>NECPA</a>{% endif %}</h2>
                    </div>
                 <!-- main sidebar switch -->
                 <a href="#" id="sidebar_main_toggle" class="sSwitch sSwitch_left">
                     <span class="sSwitchIcon"></span>
                 </a>
-                
+
                 <!-- secondary sidebar switch -->
                 <a href="#" id="sidebar_secondary_toggle" class="sSwitch sSwitch_right sidebar_secondary_check">
                     <span class="sSwitchIcon"></span>
                 </a>
-                
+
                     <div class="uk-navbar-flip">
                     <ul class="uk-navbar-nav user_actions">
                         <li><a href="#" id="full_screen_toggle" class="user_action_icon uk-visible-large"><i class="material-icons md-24 md-light">&#xE5D0;</i></a></li>
@@ -201,7 +202,7 @@
     </header><!-- main header end -->
     <!-- main sidebar -->
     <aside id="sidebar_main">
-        
+
         <div class="sidebar_main_header" style="height:auto !important; padding-top: 5px;">
             <!--<div class="sidebar_logo">
                 <a href="index.html" class="sSidebar_hide"><img src="assets/img/logo_main.png" alt="" height="15" width="71"/>sas</a>
@@ -209,11 +210,11 @@
             </div>-->
             <div class="sidebar_actions uk-text-center" >
                 <h4 style="color: #000 !important;"><span class="uk-text-bold">{% if request.user.is_superuser %}SUPERUSER {% else %}{{ request.user.profile.access_level }}{% endif %}</span>
-                <small>{{ request.user.cooperative_admin.cooperative }}</small></h4>
-                
+                <br><small>{{ request.user.cooperative_admin.cooperative }}</small></h4>
+
             </div>
         </div>
-        
+
         <div class="menu_section">
             <ul>
                 <li {% if '_dashboard' in active %}class="current_section"{% endif %} title="Dashboard">
@@ -231,7 +232,7 @@
                             <span class="menu_title">Cooperative</span>
                         </a>
                     </li>
-                    
+
                     <li {% if '_partner' in active %}class="current_section"{% endif %} title="Partner">
                         <a href="{% url 'partner:list' %}">
                             <span class="menu_icon"><i class="material-icons">extension</i></span>
@@ -272,7 +273,7 @@
                         <span class="menu_title">Member Shares</span>
                     </a>
                 </li>
-                
+
                 {% endif %}
                 <hr>
                 <li {% if '_payment' in active %}class="current_section"{% endif %} title="Member Shares">
@@ -296,7 +297,7 @@
                     </a>
                 </li>
                 <hr>
-                
+
                 <!--<li {% if '_coop_supply_request' in active %}class="current_section"{% endif %} title="Supply Request">
                     <a href="{% url 'coop:request_list' %}">
                         <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
@@ -324,9 +325,9 @@
                             {% endif %}
                         </ul>
                     </li>
-               
+
                 {% endif %}
-                {% if request.user.profile.is_union %}
+                {% if request.user.profile.is_union or request.user.profile.is_cooperative %}
                     <li {% if '_messaging' in active %}class="current_section"{% endif %} title="Messaging">
                         <a href="{% url 'op:purchase_list' %}">
                             <span class="menu_icon"><i class="material-icons">mail</i></span>
@@ -365,7 +366,7 @@
                        </ul>
                     </li>
                  {% endif %}
-                 
+
                  {% if request.user.is_superuser %}
                  <li>
                     <a href="#">
@@ -397,10 +398,11 @@
                 </li>
                 {% endif %}
           </ul>
-            
+
         </div>
         <div class="menu_bottom" style="padding: 8px 20px; height: auto; margin-top: 20px">
             <img src="{% static 'assets/img/logo.png' %}" width="100" style="bottom: 0px;">
+            {{ request.coop }}....
         </div>
     </aside><!-- main sidebar end -->
 

@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'member/list/$', MemberList.as_view(), name='member_list'),
     url(r'user/list/$', UserList.as_view(), name='user_list'),
     url(r'member/register/$', MemberEndpoint.as_view(), name='member_create'),
+    url(r'member/register/ussd/$', USSDMemberEndpoint.as_view(), name='ussdmember_create'),
     url(r'agent/verify/$', AgentValidateView.as_view(), name='agent_verify'),
     url(r'login/$', Login.as_view(), name='login'),
  ]

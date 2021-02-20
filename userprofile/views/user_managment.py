@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 from conf.utils import log_error, log_debug
 from userprofile.models import Profile
 from userprofile.forms import UserProfileForm, UserForm, CooperativeAdminForm
+from coop.models import OtherCooperativeAdmin, Cooperative
+
 
 # class UserProfileCreateView(CreateView):
 #     model = Profile
@@ -19,37 +21,42 @@ from userprofile.forms import UserProfileForm, UserForm, CooperativeAdminForm
 
 class UserProfileCreateView(View):
     template_name = "userprofile/profile_form.html"
-    
+
     def get(self, request, *arg, **kwarg):
         pk = self.kwargs.get('pk')
         instance = None
         profile = None
         coop_admin = None
+        initial = None
         if pk:
             user = User.objects.get(pk=pk)
             if user:
                 instance = user
+                other = OtherCooperativeAdmin.objects.values_list('cooperative__id', flat=True).filter(user=instance)
+                print(other)
+                initial = {"other_cooperative": [x for x in other]}
                 profile = instance.profile
                 if hasattr(instance, 'cooperative_admin'):
                     coop_admin = instance.cooperative_admin
-                
+
         user_form = UserForm(instance=instance)
-        profile_form = UserProfileForm(instance=profile)
-        
+        profile_form = UserProfileForm(instance=profile, initial=initial)
+
         coop_form = CooperativeAdminForm(instance=coop_admin)
-        data = {'user_form': user_form, 'profile_form': profile_form,  'coop_form': coop_form}
+        data = {'user_form': user_form, 'profile_form': profile_form, 'coop_form': coop_form}
         return render(request, self.template_name, data)
-    
+
     def post(self, request, *arg, **kwargs):
         pk = self.kwargs.get('pk')
         instance = None
         profile = None
         coop_admin = None
         errors = dict()
-        
+
         if pk:
             instance = User.objects.filter(pk=pk)
             if instance.exists():
+
                 instance = instance[0]
                 profile = instance.profile
                 if hasattr(instance, 'cooperative_admin'):
@@ -57,17 +64,17 @@ class UserProfileCreateView(View):
         user_form = UserForm(request.POST, instance=instance)
         profile_form = UserProfileForm(request.POST, instance=profile)
         coop_form = CooperativeAdminForm(request.POST, instance=coop_admin)
-        
+
         if user_form.is_valid() and profile_form.is_valid() and coop_form.is_valid():
             try:
                 with transaction.atomic():
-                    
+
                     if profile_form.cleaned_data.get('access_level'):
                         if coop_form.cleaned_data.get('cooperative') and \
-                         profile_form.cleaned_data.get('access_level').name.lower() != 'cooperative':
+                                profile_form.cleaned_data.get('access_level').name.lower() != 'cooperative':
                             errors['errors'] = "Only Cooperate Level Users can be assigned to a Cooperative"
-                    
-                    if not errors:     
+
+                    if not errors:
                         user = user_form.save(commit=False);
                         if not instance:
                             user.set_password(user.password)
@@ -78,6 +85,13 @@ class UserProfileCreateView(View):
                             c = coop_form.save(commit=False)
                             c.user = user
                             c.save()
+                        if profile_form.cleaned_data.get('other_cooperative'):
+                            OtherCooperativeAdmin.objects.filter(user=user).delete()
+                            for c in profile_form.cleaned_data.get('other_cooperative'):
+                                OtherCooperativeAdmin.objects.create(
+                                    user=user,
+                                    cooperative=Cooperative.objects.get(pk=c),
+                                )
                         return redirect('profile:user_list')
             except Exception as e:
                 log_error()
@@ -85,13 +99,13 @@ class UserProfileCreateView(View):
         data = {'user_form': user_form, 'profile_form': profile_form, 'coop_form': coop_form}
         data.update(errors)
         return render(request, self.template_name, data)
-    
-        
- 
+
+
 class UserProfileUpdateView(UpdateView):
     model = Profile
     form_class = UserProfileForm
     success_url = reverse_lazy('profile:user_list')
-    
+
+
 class UserProfileListView(ListView):
     model = Profile

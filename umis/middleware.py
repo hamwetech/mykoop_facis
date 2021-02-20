@@ -3,6 +3,7 @@ from django.conf import settings
 from re import compile
 from django.shortcuts import render, redirect
 from django.utils.deprecation import MiddlewareMixin
+from coop.utils import check_coop_url
 
 EXEMPT_URLS = [compile(settings.LOGIN_URL.lstrip('/'))]
 if hasattr(settings, 'LOGIN_EXEMPT_URLS'):
@@ -26,7 +27,8 @@ class LoginRequiredMiddleware(MiddlewareMixin):
  'django.contrib.auth.middleware.AuthenticationMiddleware'. If that doesn't\
  work, ensure your TEMPLATE_CONTEXT_PROCESSORS setting includes\
  'django.core.context_processors.auth'."
-        
+        host = request.get_host()
+        request.coop = check_coop_url(host)
         if not request.user.is_authenticated():
             path = request.path_info.lstrip('/')
             if not any(m.match(path) for m in EXEMPT_URLS):

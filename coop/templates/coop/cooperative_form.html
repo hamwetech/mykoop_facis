@@ -25,10 +25,17 @@
                             {% endif %}
                             <p></p>
                         </div>
+                        {% include "form/field.html" with field=form.system_url %}..
+                        {% include "form/field.html" with field=form.coop_abbreviation %}..
                         {% include "form/field.html" with field=form.contact_person_name input_group_add_on='<i class="uk-input-group-icon uk-icon-user"></i>' %}
                         {% include "form/field.html" with field=form.product input_group_add_on='<i class="uk-input-group-icon uk-icon-location-arrow"></i>'  %}
                         {% include "form/field.html" with field=form.send_message input_is_checkbox=True  %}
-                                    
+                        {% include "form/field.html" with field=form.sms_api_url   %}
+                        {% include "form/field.html" with field=form.sms_api_token %}
+                        {% include "form/field.html" with field=form.payments_account %}
+                        {% include "form/field.html" with field=form.payments_token %}
+                        {% include "form/field.html" with field=form.payments_authentication %}
+
                     </div>
                     <div class="uk-width-medium-1-2">
                         {% include "form/field.html" with field=form.name input_group_add_on='<i class="uk-input-group-icon uk-icon-institution "></i>' %}

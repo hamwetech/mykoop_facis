@@ -12,6 +12,8 @@ from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from conf.utils import log_error, log_debug
 from userprofile.models import *
 from userprofile.forms import GroupForm, AccessLevelForm, AccessLevelGroupForm, LoginForm
+from coop.models import Cooperative
+from coop.utils import check_coop_url
 
 
 class GroupCreateView(CreateView):
@@ -26,11 +28,11 @@ class GroupUpdateView(UpdateView):
     # template_name = "conf/group_form.html"
     form_class = GroupForm
     success_url = reverse_lazy('conf:group_list')
-    
-    
+
+
 class GroupListView(ListView):
     model = Group
-    
+
 
 class AccessLevelListView(ListView):
     model = AccessLevel
@@ -40,24 +42,23 @@ class AccessLevelCreateView(CreateView):
     model = AccessLevel
     form_class = AccessLevelForm
     success_url = reverse_lazy('profile:access_list')
-    
+
 
 class AccessLevelUpdateView(UpdateView):
     model = AccessLevel
     form_class = AccessLevelForm
     success_url = reverse_lazy('profile:access_list')
-    
 
 
 class AccessLevelGroupListView(ListView):
     model = AccessLevelGroup
-    
- 
+
+
 class AccessLevelGroupCreateView(CreateView):
     model = AccessLevelGroup
     form_class = AccessLevelGroupForm
     success_url = reverse_lazy('profile:ag_list')
-    
+
 
 class AccessLevelGroupUpdateView(UpdateView):
     model = AccessLevelGroup
@@ -66,7 +67,6 @@ class AccessLevelGroupUpdateView(UpdateView):
 
 
 class ChangePasswordView(View):
-
     template_name = 'userprofile/change_password.html'
 
     def get(self, request, *args, **kwargs):
@@ -87,12 +87,12 @@ class ChangePasswordView(View):
                 }
                 messages.success(request, 'Password Updated successfully')
                 return render(request, 'account/status.html', data)
-            messages.error(request, 'Sorry password Denied. Please use a password different from your previous %s passwords' % system_settings.password_reuse_threshold)
+            messages.error(request,
+                           'Sorry password Denied. Please use a password different from your previous %s passwords' % system_settings.password_reuse_threshold)
         return render(request, self.template_name, {'form': form})
 
 
 class AdminChangePasswordView(View):
-
     template_name = 'userprofile/change_password.html'
 
     def get(self, request, *args, **kwargs):
@@ -107,33 +107,41 @@ class AdminChangePasswordView(View):
         form = SetPasswordForm(__user, request.POST)
 
         if form.is_valid():
-           user = form.save()
-           data = {
+            user = form.save()
+            data = {
                 'title': 'Password Change',
                 'status_message': 'Your Password has been updated successfully.'
-           }
-           messages.success(request, 'Password Updated successfully')
-           return redirect('profile:user_list')
-            #messages.success(request, 'Password Updated successfully')
+            }
+            messages.success(request, 'Password Updated successfully')
+            return redirect('profile:user_list')
+            # messages.success(request, 'Password Updated successfully')
             # return render(request, 'account/status.html', data)
-            #return redirect('profile:user_list')
-            #messages.error(request, 'Sorry password Denied. Please use a password different from your previous %s passwords' % system_settings.password_reuse_threshold)
+            # return redirect('profile:user_list')
+            # messages.error(request, 'Sorry password Denied. Please use a password different from your previous %s passwords' % system_settings.password_reuse_threshold)
         return render(request, self.template_name, {'form': form})
 
 
 class LoginView(View):
     template_name = "userprofile/login.html"
-    
+
     def get(self, request, *args, **kwargs):
-        data = {"form": LoginForm}
+        data = dict()
+        data["form"] = LoginForm
+        host = request.get_host()
+        coop = check_coop_url(host)
+        if coop:
+            data["coop"] = coop
         return render(request, self.template_name, data)
-    
+
     def post(self, request, *args, **kwargs):
         data = dict()
         form = LoginForm(request.POST)
         cooperative = False
+        right_cooperative = "None"
+        host = request.get_host()
+        coop = check_coop_url(host)
         try:
-           if form.is_valid():
+            if form.is_valid():
                 # set_login_attempt(request)
                 username = form.cleaned_data.get('username', '')
                 password = form.cleaned_data.get('password', '')
@@ -141,13 +149,29 @@ class LoginView(View):
                 user = authenticate(username=username, password=password)
                 if user:
                     if user.is_active:
+
                         if user.profile.access_level or user.is_superuser:
+
                             if hasattr(user.profile.access_level, 'name'):
-                                if user.profile.access_level.name.lower()  == "cooperative" and user.cooperative_admin:
+                                if user.profile.access_level.name.lower() == "cooperative" and user.cooperative_admin:
                                     cooperative = True
+                                if coop:
+                                    right_cooperative = "False"
+                                    if coop == user.cooperative_admin.cooperative:
+                                        right_cooperative = "True"
                             if cooperative or user.profile.is_union() or user.profile.is_partner():
-                                login(request, user)
-                                return redirect('dashboard')
+                                print(right_cooperative)
+                                if cooperative:
+                                    if right_cooperative == "True":
+                                        login(request, user)
+                                        return redirect('dashboard')
+                                    if right_cooperative == "false":
+                                        data['errors'] = "Cooperative not identified. Please contact the Admin"
+                                elif user.profile.is_union() or user.profile.is_partner() or user.is_superuser:
+                                    login(request, user)
+                                    return redirect('dashboard')
+                                else:
+                                    data['errors'] = "Your Cooperative Credentials Failed. Please try again"
                             else:
                                 data['errors'] = "Your Cooperative not identified. Please contact the Admin"
                         else:
@@ -156,7 +180,7 @@ class LoginView(View):
                         data['errors'] = "Your account is inactive"
                 else:
                     data['errors'] = "Username or Password invalid"
-            
+
         except Exception:
             data['errors'] = "Login Error. Contact Admin"
             log_error()
@@ -167,6 +191,5 @@ class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect('login')
-        #return super(LogoutView, self).get(request, *args, **kwargs)
-    
-    
+        # return super(LogoutView, self).get(request, *args, **kwargs)
+

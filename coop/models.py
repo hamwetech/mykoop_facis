@@ -18,6 +18,7 @@ class Cooperative(models.Model):
     name = models.CharField(max_length=150, unique=True)
     logo = models.ImageField(upload_to='cooperatives/', null=True, blank=True)
     code = models.CharField(max_length=150, unique=True, null=True, blank=True)
+    coop_abbreviation = models.CharField(max_length=150, unique=True, null=True, blank=True)
     district = models.ForeignKey(District, null=True, blank=True, on_delete=models.CASCADE)
     sub_county = models.ForeignKey(SubCounty, null=True, blank=True, on_delete=models.CASCADE)
     address = models.TextField(null=True, blank=True)
@@ -27,8 +28,15 @@ class Cooperative(models.Model):
     contribution_total = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     shares = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     is_active = models.BooleanField(default=0)
-    send_message = models.BooleanField(default=0, help_text='If not set, the cooperative member will not receive SMS\'s when sent.')
+    send_message = models.BooleanField(default=0,
+                                       help_text='If not set, the cooperative member will not receive SMS\'s when sent.')
     date_joined = models.DateField()
+    sms_api_url = models.CharField(max_length=255, null=True, blank=True)
+    sms_api_token = models.CharField(max_length=255, null=True, blank=True)
+    payments_account = models.CharField(max_length=255, null=True, blank=True)
+    payments_token = models.CharField(max_length=255, null=True, blank=True)
+    payments_authentication = models.CharField(max_length=255, null=True, blank=True)
+    system_url = models.CharField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
@@ -111,6 +119,20 @@ class CooperativeAdmin(models.Model):
     class Meta:
         db_table = 'cooperative_admin'
         
+    def __unicode__(self):
+        return u'%s' % self.cooperative
+
+
+class OtherCooperativeAdmin(models.Model):
+    user = models.ForeignKey(User, blank=True, related_name='other_cooperative_admin')
+    cooperative = models.ForeignKey(Cooperative, blank=True, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'other_cooperative_admin'
+
     def __unicode__(self):
         return u'%s' % self.cooperative
 
