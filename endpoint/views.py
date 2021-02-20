@@ -106,12 +106,16 @@ class AgentValidateView(APIView):
     def post(self, request, format=None):
         phone_number = request.data.get('phone_number')
         agent_code = request.data.get('agent_code')
-        cooperatives = [{"id": c.id, "name": c.name, "code": c.code} for c in Cooperative.objects.all()]
         profiles = Profile.objects.filter(msisdn=phone_number)
+
         if profiles.exists():
             profile = profiles[0]
             q_token = Token.objects.filter(user=profile.user)
             if q_token.exists():
+                cooperatives = [{"id": c.cooperative.id, "name": c.cooperative.name, "code": c.cooperative.code} for c
+                                in
+                                OtherCooperativeAdmin.objects.filter(user=profile.user)]
+
                 token = q_token[0]
                 return Response({"status": "OK", "response": {"token": token.key, "cooperatives": cooperatives }}, status.HTTP_200_OK)
         return Response({"status": "ERROR", "response": "Agent not Found"}, status.HTTP_200_OK)
