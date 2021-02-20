@@ -6,7 +6,8 @@ import string
 import random
 from django.shortcuts import render
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -300,7 +301,6 @@ class USSDMemberEndpoint(APIView):
             "iteration count %s" % count
             return self.check_id(member, cooperative, count, yr)
         return idno
-
 
 
 class CooperativeListView(APIView):
