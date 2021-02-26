@@ -54,8 +54,9 @@ class CooperativeAdminForm(forms.ModelForm):
         self.request = kwargs.pop('request', None)
         super(CooperativeAdminForm, self).__init__(*args, **kwargs)
         if self.request.user.profile.is_cooperative():
-            self.fields['cooperative'].widget=forms.HiddenInput()
-            self.fields['cooperative'].initial=self.request.user.cooperative_admin.cooperative
+            if hasattr(self.request.user, 'cooperative_admin'):
+                self.fields['cooperative'].widget=forms.HiddenInput()
+                self.fields['cooperative'].initial=self.request.user.cooperative_admin.cooperative
 
 
 
