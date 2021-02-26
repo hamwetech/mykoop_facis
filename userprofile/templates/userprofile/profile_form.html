@@ -53,3 +53,14 @@
         </div>
     </div>
 {% endblock %}
+
+{% block page_specific_scripts %}
+ <!--  forms advanced functions -->
+<script src="{% static 'assets/js/pages/forms_advanced.min.js' %}"></script>
+
+<script>
+    $("#selec_adv_1").selectize({
+        plugins:{remove_button:{label:""}},
+    })
+</script>
+{% endblock %}

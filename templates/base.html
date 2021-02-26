@@ -55,7 +55,7 @@
             <nav class="uk-navbar">
                   <div class="main_logo_top">
                         <h2><a href="." style="color:#fff !important;">
-                            {% if request.coop %} <img src="{{ MEDIA_URL }}{{ request.coop.logo }} " alt="" width="120"/>...</a> {% else %} <img src="{% static 'assets/img/logo.png' %}" alt="" width="120"/>NECPA</a>{% endif %}</h2>
+                            {% if request.coop %} <img src="{{ MEDIA_URL }}{{ request.coop.logo }} " alt="" width="100"/>...</a> {% else %} <img src="{% static 'assets/img/logo.png' %}" alt="" width="90"/>NECPA</a>{% endif %}</h2>
                    </div>
                 <!-- main sidebar switch -->
                 <a href="#" id="sidebar_main_toggle" class="sSwitch sSwitch_left">
@@ -350,6 +350,15 @@
                     </ul>
                 </li>
                 {% endif %}
+
+                {% if request.user.profile.is_cooperative and not request.user.is_superuser %}
+                <li {% if '_coop_users' in active %}class="current_section"{% endif %} title="Coop User">
+                    <a href="{% url 'profile:user_list' %}">
+                        <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
+                        <span class="menu_title">Users</span>
+                    </a>
+                </li>
+                {% endif %}
                 {% if request.user.profile.is_union or request.user.profile.is_partner %}
                     <li {% if '_union_prod' in active %}class="current_section"{% endif %}>
                         <a href="#">
@@ -402,7 +411,7 @@
         </div>
         <div class="menu_bottom" style="padding: 8px 20px; height: auto; margin-top: 20px">
             <img src="{% static 'assets/img/logo.png' %}" width="100" style="bottom: 0px;">
-            {{ request.coop }}....
+
         </div>
     </aside><!-- main sidebar end -->
 

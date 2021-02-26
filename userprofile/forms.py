@@ -25,7 +25,7 @@ class UserForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
-    other_cooperative = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple,
+    other_cooperative = forms.MultipleChoiceField(required=False,
                                                   choices=[])
 
     class Meta:
@@ -33,14 +33,30 @@ class UserProfileForm(forms.ModelForm):
         fields = ['msisdn', 'access_level', 'other_cooperative']
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
         super(UserProfileForm, self).__init__(*args, **kwargs)
         self.fields['other_cooperative'].choices = [[x.id, x.name] for x in Cooperative.objects.all()]
+        self.fields['other_cooperative'].widget.attrs.update({'id': "selec_adv_1"})
+        if self.request.user.profile.is_cooperative():
+            al = AccessLevel.objects.filter(name="AGENT")
+            if al.exists():
+                al = al[0]
+                self.fields['access_level'].initial = al
+                self.fields['access_level'].widget=forms.HiddenInput()
 
 
 class CooperativeAdminForm(forms.ModelForm):
     class Meta:
         model = CooperativeAdmin
         fields = ['cooperative']
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(CooperativeAdminForm, self).__init__(*args, **kwargs)
+        if self.request.user.profile.is_cooperative():
+            self.fields['cooperative'].widget=forms.HiddenInput()
+            self.fields['cooperative'].initial=self.request.user.cooperative_admin.cooperative
+
 
 
 # class UserProfileForm(forms.ModelForm):

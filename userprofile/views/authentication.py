@@ -137,7 +137,7 @@ class LoginView(View):
         data = dict()
         form = LoginForm(request.POST)
         cooperative = False
-        right_cooperative = "None"
+        right_cooperative = None
         host = request.get_host()
         coop = check_coop_url(host)
         try:
@@ -161,7 +161,11 @@ class LoginView(View):
                                         right_cooperative = "True"
                             if cooperative or user.profile.is_union() or user.profile.is_partner():
                                 print(right_cooperative)
+                                print(cooperative)
                                 if cooperative:
+                                    if not right_cooperative:
+                                        login(request, user)
+                                        return redirect('dashboard')
                                     if right_cooperative == "True":
                                         login(request, user)
                                         return redirect('dashboard')

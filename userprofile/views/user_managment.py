@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from conf.utils import log_error, log_debug
 from userprofile.models import Profile
 from userprofile.forms import UserProfileForm, UserForm, CooperativeAdminForm
-from coop.models import OtherCooperativeAdmin, Cooperative
+from coop.models import OtherCooperativeAdmin, Cooperative, CooperativeAdmin
 
 
 # class UserProfileCreateView(CreateView):
@@ -40,9 +40,9 @@ class UserProfileCreateView(View):
                     coop_admin = instance.cooperative_admin
 
         user_form = UserForm(instance=instance)
-        profile_form = UserProfileForm(instance=profile, initial=initial)
+        profile_form = UserProfileForm(instance=profile, initial=initial, request=self.request)
 
-        coop_form = CooperativeAdminForm(instance=coop_admin)
+        coop_form = CooperativeAdminForm(instance=coop_admin, request=self.request)
         data = {'user_form': user_form, 'profile_form': profile_form, 'coop_form': coop_form}
         return render(request, self.template_name, data)
 
@@ -56,35 +56,39 @@ class UserProfileCreateView(View):
         if pk:
             instance = User.objects.filter(pk=pk)
             if instance.exists():
-
                 instance = instance[0]
                 profile = instance.profile
                 if hasattr(instance, 'cooperative_admin'):
                     coop_admin = instance.cooperative_admin
         user_form = UserForm(request.POST, instance=instance)
-        profile_form = UserProfileForm(request.POST, instance=profile)
-        coop_form = CooperativeAdminForm(request.POST, instance=coop_admin)
+        profile_form = UserProfileForm(request.POST, instance=profile, request=self.request)
+        coop_form = CooperativeAdminForm(request.POST, instance=coop_admin, request=self.request)
 
         if user_form.is_valid() and profile_form.is_valid() and coop_form.is_valid():
             try:
                 with transaction.atomic():
 
                     if profile_form.cleaned_data.get('access_level'):
-                        if coop_form.cleaned_data.get('cooperative') and \
-                                profile_form.cleaned_data.get('access_level').name.lower() != 'cooperative':
-                            errors['errors'] = "Only Cooperate Level Users can be assigned to a Cooperative"
+                        if coop_form.cleaned_data.get('cooperative'):
+                            print(profile_form.cleaned_data.get('access_level').name.lower() == 'cooperative' or profile_form.cleaned_data.get('access_level').name.lower() == 'agent')
+                            if profile_form.cleaned_data.get('access_level').name.lower() == 'cooperative' or profile_form.cleaned_data.get('access_level').name.lower() == 'agent':
+                                pass
+                            else:
+                                errors['errors'] = "Only Cooperate Level Users can be assigned to a Cooperative"
 
                     if not errors:
                         user = user_form.save(commit=False);
                         if not instance:
                             user.set_password(user.password)
                         user.save()
-                        profile_form = UserProfileForm(request.POST, instance=user.profile)
+                        profile_form = UserProfileForm(request.POST, instance=user.profile, request=self.request)
                         profile_form.save()
+
                         if coop_form.cleaned_data.get('cooperative'):
                             c = coop_form.save(commit=False)
                             c.user = user
                             c.save()
+
                         if profile_form.cleaned_data.get('other_cooperative'):
                             OtherCooperativeAdmin.objects.filter(user=user).delete()
                             for c in profile_form.cleaned_data.get('other_cooperative'):
@@ -109,3 +113,12 @@ class UserProfileUpdateView(UpdateView):
 
 class UserProfileListView(ListView):
     model = Profile
+
+    def get_queryset(self):
+        queryset = super(UserProfileListView, self).get_queryset()
+        u = []
+        if hasattr(self.request.user, 'cooperative_admin'):
+            [u.append(x.user) for x in CooperativeAdmin.objects.filter(cooperative=self.request.user.cooperative_admin.cooperative)]
+            print(u)
+            queryset = queryset.filter(user__in=u)
+        return queryset

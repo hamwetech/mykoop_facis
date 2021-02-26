@@ -102,7 +102,11 @@ class VillageListView(ExtraContext, ListView):
         if village:
             queryset = queryset.filter(name=query)
         if subcounty:
-            queryset = queryset.filter(name__sub_county__name=subcounty)
+            queryset = queryset.filter(sub_county__name=subcounty)
+        if county:
+            queryset = queryset.filter(sub_county__county__name=county)
+        if district:
+            queryset = queryset.filter(sub_county__county__district__name=district)
             
         return queryset
         
