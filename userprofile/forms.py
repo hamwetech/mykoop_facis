@@ -33,16 +33,17 @@ class UserProfileForm(forms.ModelForm):
         fields = ['msisdn', 'access_level', 'other_cooperative']
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
+        self.request = kwargs.pop('request')
         super(UserProfileForm, self).__init__(*args, **kwargs)
         self.fields['other_cooperative'].choices = [[x.id, x.name] for x in Cooperative.objects.all()]
         self.fields['other_cooperative'].widget.attrs.update({'id': "selec_adv_1"})
-        if self.request.user.profile.is_cooperative():
+        if hasattr(self.request.user, 'cooperative_admin'):
+            self.fields['other_cooperative'].widget = forms.HiddenInput()
             al = AccessLevel.objects.filter(name="AGENT")
             if al.exists():
                 al = al[0]
                 self.fields['access_level'].initial = al
-                self.fields['access_level'].widget=forms.HiddenInput()
+                self.fields['access_level'].widget = forms.HiddenInput()
 
 
 class CooperativeAdminForm(forms.ModelForm):
@@ -51,12 +52,11 @@ class CooperativeAdminForm(forms.ModelForm):
         fields = ['cooperative']
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
+        self.request = kwargs.pop('request')
         super(CooperativeAdminForm, self).__init__(*args, **kwargs)
-        if self.request.user.profile.is_cooperative():
-            if hasattr(self.request.user, 'cooperative_admin'):
-                self.fields['cooperative'].widget=forms.HiddenInput()
-                self.fields['cooperative'].initial=self.request.user.cooperative_admin.cooperative
+        if hasattr(self.request.user, 'cooperative_admin'):
+            self.fields['cooperative'].initial = self.request.user.cooperative_admin.cooperative
+            self.fields['cooperative'].widget = forms.HiddenInput()
 
 
 

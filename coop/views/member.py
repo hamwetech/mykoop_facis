@@ -229,7 +229,8 @@ class MemberUploadExcel(ExtraContext, View):
                     date_of_birth = (row[date_of_birth_col].value)
                     if date_of_birth:
                         try:
-                            date_str = datetime(*xlrd.xldate_as_tuple(int(date_of_birth), book.datemode))
+                            print(date_of_birth)
+                            date_str = datetime(*xlrd.xldate_as_tuple(date_of_birth, book.datemode))
                             date_of_birth = date_str.strftime("%Y-%m-%d")
                         except Exception as e:
                             data['errors'] = '"%s" is not a valid Date of Birth (row %d): %s' % \
