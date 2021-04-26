@@ -115,7 +115,7 @@ class MemberCreateView(ExtraContext, CreateView):
         member = member.filter(member_id=idno)
         if member.exists():
             count = count + 1
-            print "iteration count %s" % count
+            #print "iteration count %s" % count
             return self.check_id(member, cooperative, count, yr)
         return idno
 
@@ -229,7 +229,7 @@ class MemberUploadExcel(ExtraContext, View):
                     date_of_birth = (row[date_of_birth_col].value)
                     if date_of_birth:
                         try:
-                            print(date_of_birth)
+                            #print(date_of_birth)
                             date_str = datetime(*xlrd.xldate_as_tuple(date_of_birth, book.datemode))
                             date_of_birth = date_str.strftime("%Y-%m-%d")
                         except Exception as e:
@@ -243,7 +243,7 @@ class MemberUploadExcel(ExtraContext, View):
                         try:
                             phone_number = int(phone_number)
                         except Exception as e:
-                            print e
+                            ##print e
                             phone_number = None
 
                         if phone_number:
@@ -468,7 +468,8 @@ class CooperativeMemberListView(ExtraContext, ListView):
         coop = self.request.GET.get('cooperative')
         role = self.request.GET.get('role')
         district = self.request.GET.get('district')
-        
+        create_by = self.request.GET.get('create_by')
+
         if not self.request.user.profile.is_union():
             cooperative = self.request.user.cooperative_admin.cooperative 
             queryset = queryset.filter(cooperative=cooperative)
@@ -484,6 +485,8 @@ class CooperativeMemberListView(ExtraContext, ListView):
             queryset = queryset.filter(coop_role=role)
         if district:
             queryset = queryset.filter(district__id=district)
+        if create_by:
+            queryset = queryset.filter(create_by__profile__id=create_by)
         return queryset
         
     def get_context_data(self, **kwargs):
@@ -500,14 +503,15 @@ class CooperativeMemberListView(ExtraContext, ListView):
         coop = self.request.GET.get('cooperative')
         role = self.request.GET.get('role')
         district = self.request.GET.get('district')
-        
+        create_by = self.request.GET.get('create_by')
+
         
         profile_choices = ['id','cooperative__name', 'member_id', 'surname', 'first_name', 'other_name',
                                'date_of_birth', 'gender', 'maritual_status','phone_number','email',
                                'district__name','sub_county__name','village','address','gps_coodinates',
                                'coop_role','cotton_acreage', 'soya_beans_acreage','soghum_acreage','shares',
-                               'collection_amount','collection_quantity', 'paid_amount']
-        
+                               'collection_amount','collection_quantity', 'paid_amount', 'create_by__username']
+
         columns += [self.replaceMultiple(c, ['_', '__name'], ' ').title() for c in profile_choices]
         #Gather the Information Found
         # Create the HttpResponse object with Excel header.This tells browsers that 
@@ -546,12 +550,14 @@ class CooperativeMemberListView(ExtraContext, ListView):
             _members = _members.filter(coop_role=role)
         if district:
             _members = _members.filter(district__id=district)
+        if create_by:
+            _members = _members.filter(create_by__profile__id=create_by)
         
         for m in _members:
             
             
             row_num += 1
-            print profile_choices
+            # ##print profile_choices
             row = [m['%s' % x] if 'date_of_birth' not in x else m['%s' % x].strftime('%d-%m-%Y') if m.get('%s' % x) else ""  for x in profile_choices]
             
             for col_num in range(len(row)):
@@ -576,7 +582,7 @@ class ImageQRCodeDownloadView(View):
             pk = self.kwargs.get('pk')
             qs = CooperativeMember.objects.get(pk=pk)
             image = qs.get_qrcode()
-            print image.path
+            ##print image.path
             image_buffer = open(image.path, "rb").read()
             content_type = magic.from_buffer(image_buffer, mime=True)
             response = HttpResponse(image_buffer, content_type=content_type);
@@ -793,7 +799,7 @@ class SendCommunicationView(View):
         return JsonResponse(jres)
     
     def post(self, request,  *args, **kwargs):
-        print " Message: %s" % (self.request.body)
+        ##print " Message: %s" % (self.request.body)
         body_unicode = self.request.body.decode('utf-8')
         data = json.loads(body_unicode)
         
@@ -826,7 +832,7 @@ class SendCommunicationView(View):
                 if re.search('<NAME>', message):
                     if q.surname:
                         message = message.replace('<NAME>', q.surname.title())
-                print "%s Message: %s" % (q.phone_number, message)
+                #print "%s Message: %s" % (q.phone_number, message)
                 sms = sendMemberSMS(self.request, q, message)
                 if sms:
                     count += 1

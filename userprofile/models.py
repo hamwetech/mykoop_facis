@@ -72,6 +72,9 @@ class Profile(models.Model):
         if self.access_level.name.upper() == "UNION" or self.user.is_superuser:
             return True
         return False
+
+    def __str__(self):
+        return self.user.get_full_name()
         
 
 @receiver(post_save, sender=User)

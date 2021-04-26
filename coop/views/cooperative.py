@@ -49,7 +49,10 @@ class CooperativeCreateView(CreateView):
         code = get_consontant_upper(form.instance.name)
         q = Cooperative.objects.filter(code=code)
         if q.exists():
-            return form.instance.name.upper()[:3]
+            count = q.count()
+            q2 = Cooperative.objects.filter(code__contains=form.instance.name.upper()[:3])
+            code = "%s%s" % (form.instance.name.upper()[:3], count+1)
+            return code
         return get_consontant_upper(form.instance.name)
     
     

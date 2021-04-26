@@ -9,6 +9,7 @@ from conf.utils import bootstrapify, internationalize_number, PHONE_REGEX
 from coop.models import *
 from conf.models import District, SubCounty, Village, Parish, PaymentMethod
 from product.models import ProductVariation
+from userprofile.models import Profile
 
 class CooperativeForm(forms.ModelForm):
     class Meta:
@@ -155,7 +156,8 @@ class MemberProfileSearchForm(forms.Form):
     cooperative = forms.ChoiceField(widget=forms.Select(), choices=[], required=False)
     role = forms.ChoiceField(widget=forms.Select(), choices=choices, required=False)
     district = forms.ChoiceField(widget=forms.Select(), choices=[], required=False)
-    
+    create_by = forms.ModelChoiceField(queryset=None, required=False)
+
     def __init__(self,  *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super (MemberProfileSearchForm, self).__init__(*args, **kwargs)
@@ -169,12 +171,14 @@ class MemberProfileSearchForm(forms.Form):
         
         for dq in d_qs:
             dchoices.append([dq['district__id'], dq['district__name']])
-            
+
+        self.fields['create_by'].queryset = Profile.objects.all()
         self.fields['cooperative'].choices = choices
         self.fields['district'].choices = dchoices
         if not self.request.user.profile.is_union():
             self.fields.pop('cooperative')
-    
+            self.fields.pop('create_by')
+
 
 class MemberUploadForm(forms.Form):
     
