@@ -7,6 +7,7 @@ urlpatterns = [
      url(r'district/list/$', DistrictListView.as_view(), name='district_list'),
      url(r'district/create/$', DistrictCreateView.as_view(), name='district_create'),
      url(r'district/(?P<pk>[\w]+)/$', DistrictUpdateView.as_view(), name='district_edit'),
+     url(r'district/delete/(?P<pk>[\w]+)/$', DistrictDeleteView.as_view(), name='district_delete'),
      url(r'county/create/$', CountyCreateView.as_view(), name='county_create'),
      url(r'county/list/$', CountyListView.as_view(), name='county_list'),
      url(r'county/(?P<pk>[\w]+)/$', CountyUpdateView.as_view(), name='county_edit'),

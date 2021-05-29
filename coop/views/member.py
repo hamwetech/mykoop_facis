@@ -16,7 +16,7 @@ from django.db.models.functions import Concat
 from django.utils.encoding import smart_str
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
-from django.views.generic import View, ListView, DetailView
+from django.views.generic import View, ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormMixin
@@ -455,6 +455,7 @@ class MemberUploadExcel(ExtraContext, View):
 class CooperativeMemberListView(ExtraContext, ListView):
     model = CooperativeMember
     template_name = 'coop/cooperativemember_list.html'
+    ordering = ['-id']
     
     def dispatch(self, *args, **kwargs):
         if self.request.GET.get('download'):
@@ -1144,6 +1145,15 @@ class SupplyConfirmationView(UpdateView):
         return context
 
 
+class MembersMapView(TemplateView):
+    template_name = "coop/farmer_map.html"
 
-    
-    
+
+def get_farmer_map(request):
+    farmer = CooperativeMember.objects.all()
+    data = []
+    for f in farmer:
+        if f.gps_coodinates:
+            data.append({"name": f.get_name(), "gps": f.gps_coodinates})
+    print(data)
+    return JsonResponse(data, safe=False)

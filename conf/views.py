@@ -9,10 +9,10 @@ from django.shortcuts import render, redirect
 from django.db import transaction
 from django.db.models import Q, Count, Sum
 from django.utils.encoding import smart_str
-from django.views.generic import ListView, View, TemplateView
+from django.views.generic import ListView, View, TemplateView, DeleteView
 from django.views.generic.edit import CreateView, UpdateView
 
-from conf.utils import log_debug, log_error
+from conf.utils import log_debug, log_error, get_deleted_objects
 from conf.models import District, County, SubCounty, Parish, Village, PaymentMethod, MessageTemplates
 from conf.forms import DistrictForm, CountyForm, SubCountyForm, VillageForm, PaymentMethodForm, UploadLocation,\
 MessageTemplatesForm
@@ -45,6 +45,25 @@ class DistrictUpdateView(ExtraContext, UpdateView):
     form_class = DistrictForm
     extra_context = {'active': ['_config', '__district']}
     success_url = reverse_lazy('conf:district_list')
+
+
+class DistrictDeleteView(ExtraContext, DeleteView):
+    model = District
+    success_url = reverse_lazy('conf:district_list')
+    template_name='confirm_delete.html'
+
+    def get_context_data(self, **kwargs):
+        #
+        context = super(DistrictDeleteView, self).get_context_data(**kwargs)
+        #
+
+        deletable_objects, model_count, protected = get_deleted_objects([self.object])
+        #
+        context['deletable_objects'] = deletable_objects
+        context['model_count'] = dict(model_count).items()
+        context['protected'] = protected
+        #
+        return context
 
 
 class CountyListView(ExtraContext, ListView):

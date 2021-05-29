@@ -27,7 +27,11 @@
                             <tr>
                                 <td>{{ item.name }}</td>
                                 
-                                <td><a href="{% url 'conf:district_edit' item.id %}" class="uk-float-right"><i class="md-icon material-icons">&#xE254;</i></a></td>
+                                <td>
+                                {% if request.user.is_superuser %}<a href="{% url 'conf:district_delete' item.id %}" class="uk-float-right"><i class="md-icon material-icons uk-text-danger">&#xe872;</i></a>{% endif %}
+                                    <a href="{% url 'conf:district_edit' item.id %}" class="uk-float-right"><i class="md-icon material-icons ">&#xE254;</i></a>
+                                </td>
+
                             </tr>
                             
                         {% endfor %}

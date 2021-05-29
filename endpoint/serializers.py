@@ -12,6 +12,7 @@ from product.models import ProductVariation, Supplier
 from conf.utils import internationalize_number, log_debug, log_error
 from activity.models import ThematicArea, TrainingSession, TrainingModule
 
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=128)
     password = serializers.CharField(max_length=128)

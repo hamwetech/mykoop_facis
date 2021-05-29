@@ -237,6 +237,7 @@ class CooperativeMember(models.Model):
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)
     is_active = models.BooleanField(default=1)
     qrcode = models.ImageField(upload_to='qrcode', blank=True, null=True)
+    app_id = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)
     create_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)

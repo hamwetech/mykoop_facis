@@ -63,11 +63,13 @@ urlpatterns = [
      url(r'member/upload/$', MemberUploadExcel.as_view(), name='member_upload'),
      url(r'member/list/$', CooperativeMemberListView.as_view(), name='member_list'),
      url(r'member/create/$', MemberCreateView.as_view(), name='member_create'),
+     url(r'member/map/$', MembersMapView.as_view(), name='member_map'),
      url(r'member/(?P<pk>[\w]+)/$', MemberUpdateView.as_view(), name='member_update'),
      url(r'delete/(?P<pk>[\w]+)/$', CooperativeDeleteView.as_view(), name='delete'),
      url(r'upload/$', CooperativeUploadView.as_view(), name='upload'),
      url(r'create/$', CooperativeCreateView.as_view(), name='create'),
      url(r'list/$', CooperativeListView.as_view(), name='list'),
+     url(r'ajax/load-farmer/', get_farmer_map, name='ajax_load_farmer_map'),
      url(r'(?P<pk>[\w]+)/$', CooperativeUpdateView.as_view(), name='edit'),
      
     ]

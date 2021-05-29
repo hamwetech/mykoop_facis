@@ -57,7 +57,7 @@ class Login(APIView):
                         token = q_token[0]
                         qs = Profile.objects.get(user=user)
                         product = Product.objects.values('name').all()
-                        cooperatives = [{"id": c.id, "name": c.name, "code": c.code} for c in Cooperative.objects.all()]
+                        cooperatives = [{"id": c.id, "name": c.name, "code": c.code} for c in Cooperative.objects.all().order_by('name')]
                         members = CooperativeMember.objects.all().order_by('-surname')
                         variation = ProductVariation.objects.values('id', 'product', 'name').all()
                         variation_price = ProductVariationPrice.objects.values('id', 'product', 'product__name', 'price').all()
@@ -129,6 +129,8 @@ class MemberEndpoint(APIView):
     def post(self, request, format=None):
         member = MemberSerializer(data=request.data)
         mem = CooperativeMember.objects.filter(member_id=request.data.get('member_id'))
+        if mem.count() < 1:
+            mem = CooperativeMember.objects.filter(first_name=request.data.get('first_name'),other_name=request.data.get('other_name'),surname=request.data.get('surname'),date_of_birth=request.data.get('date_of_birth'))
         print ("ADDING........%s, %s " % (mem.count(), request.data.get('member_id')))
         if mem.count() > 0:
             member = MemberSerializer(mem[0], data=request.data) 
@@ -136,12 +138,13 @@ class MemberEndpoint(APIView):
             if member.is_valid():
                 
                 with transaction.atomic():
+
                     if mem.count() < 1: 
                         __member = member.save()
-                    	__member.member_id = self.generate_member_id(__member.cooperative)
+                        __member.member_id = self.generate_member_id(__member.cooperative)
                         __member.create_by = request.user
                         __member.save()
-			mes = message_template()
+                        mes = message_template()
                         if mes:
                             message = message_template().member_registration
                             if re.search('<NAME>', message):
@@ -542,3 +545,6 @@ class UserList(APIView):
         users = Profile.objects.all()
         serializer = AgentSerializer(users, context={'request': request}, many=True)
         return Response(serializer.data)
+
+
+
