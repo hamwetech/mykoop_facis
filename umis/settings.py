@@ -81,6 +81,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'umis.my_context_processors.product_name',
             ],
         },
     },
@@ -96,17 +97,7 @@ WSGI_APPLICATION = 'umis.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-                },
-        'NAME': 'necpa',
-        'USER': 'necpa',
-        'PASSWORD': 'necpa',
-    }
-}
+
 
 
 # Password validation

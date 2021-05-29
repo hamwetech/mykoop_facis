@@ -1,6 +1,7 @@
 from datetime import datetime, date
 from rest_framework import serializers
 from django.utils import timezone
+from django.conf import settings
 from django.contrib.auth.models import User
 from coop.models import *
 from conf.models import *
@@ -69,7 +70,7 @@ class CooperativeSerializer(serializers.ModelSerializer):
     members = serializers.SerializerMethodField('member_count')
 
     def is_named_union(self, obj):
-        return "NECPA"
+        return "%s" % settings.PRODUCT_ABBREVIATION
     
     def member_count(self, obj):
         m = CooperativeMember.objects.filter(cooperative=obj)
@@ -276,7 +277,7 @@ class AgentSerializer(serializers.ModelSerializer):
     union = serializers.SerializerMethodField('is_named_union')
     
     def is_named_union(self, obj):
-        return "NECPA"
+        return "%s" % settings.PRODUCT_ABBREVIATION
 
     def member_count(self, obj):
         req = self.context.get('request')

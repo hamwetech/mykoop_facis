@@ -197,7 +197,7 @@ class CooperativeMember(models.Model):
         ('Dr', 'Dr'),
         ('Prof', 'Prof'),
         ('Hon', 'Hon'),
-        )
+    )
     cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='member/', null=True, blank=True)
     member_id = models.CharField(max_length=150, unique=True, null=True, blank=True)
@@ -319,10 +319,7 @@ class CooperativeMember(models.Model):
             return MemberOrder.objects.filter(member=self).order_by('-order_date')
         except Exception:
             return None
-        
-    
-        
-    
+
     # def get_total_product(self):
     #     q = CooperativeMemberProductQuantity.objects.filter(cooperative_member=self)
     #     tp = q.annotate(total_product=F('adult')+F('heifer')+F('bullock')+F('calves'))
@@ -331,8 +328,9 @@ class CooperativeMember(models.Model):
     #     for x in tp:
     #         total = x.total_product
     #     return total
-    
-    
+
+
+
     
     
 class CooperativeMemberBusiness(models.Model):
