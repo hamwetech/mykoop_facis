@@ -21,6 +21,14 @@ Run `git clone https://github.com/hamweorg/ftf.git`
 - Run `pip install -r requirements.txt`
 - Run `mysql -u root -p`
 - Run `create database ftf;`
+- Run `create user 'django'@'localhost' identified by 'django-user-password';`
+- Run `grant usage on *.* to 'django'@'localhost';`
+- Run `GRANT ALL PRIVILEGES ON ftf TO 'django'@'localhost'`
+- Run `use ftf;`
+- Run `grant all privileges on `ftf`.* to 'django'@'localhost';`
+- Run `exit`
+- Run `export SQL_USER=django`
+- Run `export SQL_PASSWORD=django-user-password`
 - Run `python manage.py makemigrations`
 - Run `python manage.py migrate`
 - Run `python manage.py createsuperuser`
