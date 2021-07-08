@@ -35,6 +35,7 @@ Run `git clone https://github.com/hamweorg/ftf.git`
 - Run `python manage.py help` to view available commands
 - Run `python manage.py runserver 0.0.0.0:8000` to start the app
 - Visit `http://192.168.33.10:8000/`
+- To use vagrant to run a linux VM, use (vagrant.txt)[./vagrant.txt]
 
 ### Contributing
 
