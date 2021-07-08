@@ -6,7 +6,7 @@ FTF API (A MyKoop variant)
 
 Local enviroment setup
 
-- Use (Python 2.7)[https://www.python.org/download/releases/2.7/] and Mysql 5.6
+- Use [Python 2.7](https://www.python.org/download/releases/2.7/) and Mysql 5.6
 
 ### local develop
 
@@ -16,8 +16,8 @@ Run `git clone https://github.com/hamweorg/ftf.git`
 
 - Run `virtualenv --python=C:\Python27\python.exe venv` (point to your python27 executable accordingly)
 - Run `venv\Scripts\activate` if on windows (activate the virtual environment accordingly otherwise)
-- Run `pip install mysqlclient`. If that fails, download an unofficial binary (here)[https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysqlclient] then run `pip install <path-to-whl-file>`. Windows may ask you to install Microsoft Visual C++ 9.0, try (this)[https://web.archive.org/web/20190720195601/http://www.microsoft.com/en-us/download/confirmation.aspx?id=44266]
-- Or run(this)[https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-18-04] for Linux and `pip install pymysql`.
+- Run `pip install mysqlclient`. If that fails, download an unofficial binary [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysqlclient) then run `pip install <path-to-whl-file>`. Windows may ask you to install Microsoft Visual C++ 9.0, try [this](https://web.archive.org/web/20190720195601/http://www.microsoft.com/en-us/download/confirmation.aspx?id=44266)
+- Or run [this](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-18-04) for Linux and `pip install pymysql`.
 - Run `pip install -r requirements.txt`
 - Run `mysql -u root -p`
 - Run `create database ftf;`
@@ -35,7 +35,7 @@ Run `git clone https://github.com/hamweorg/ftf.git`
 - Run `python manage.py help` to view available commands
 - Run `python manage.py runserver 0.0.0.0:8000` to start the app
 - Visit `http://192.168.33.10:8000/`
-- To use vagrant to run a linux VM, use (vagrant.txt)[./vagrant.txt]
+- To use vagrant to run a linux VM, use [vagrant.txt](./vagrant.txt)
 
 ### Contributing
 
