@@ -50,3 +50,4 @@ Thumbs.db
 *.wmv
 local.py
 media/
+pyenv-virtualenv/

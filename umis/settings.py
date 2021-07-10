@@ -96,8 +96,19 @@ WSGI_APPLICATION = 'umis.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+DATABASES = {
+    'default': {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.mysql"),
+        "NAME": os.environ.get("SQL_DATABASE", "ftf"),
+        "USER": os.environ.get("SQL_USER", "django"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "django-user-password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "3306"),
+    }
+}
 
-
+PRODUCT_NAME = os.environ.get("PRODUCT_NAME", "FTF")
+PRODUCT_ABBREVIATION = os.environ.get("PRODUCT_ABBREVIATION", "FTF")
 
 
 # Password validation
