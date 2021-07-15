@@ -117,6 +117,7 @@ class LoanRequestListView(ExtraContext, ListView):
 class LoanRequestDetailView(ExtraContext, DetailView):
     model = LoanRequest
     extra_context = {'active': ['_credit', '__loan']}
+    ordering = ('-id',)
 
 
 class ApproveLoan(View):
@@ -126,10 +127,10 @@ class ApproveLoan(View):
         today = datetime.datetime.today()
         try:
             lq = LoanRequest.objects.get(pk=pk)
-            if status == 'APPROVE':
-                mo.confirm_date = today
-                OrderItem.object.filter(pk=lq.order_item).update(status="APPROVED")
-            if status == 'REJECT':
+            if status == 'APPROVED':
+                lq.confirm_date = today
+                OrderItem.objects.filter(pk=lq.order_item.id).update(status="APPROVED")
+            if status == 'REJECTED':
                 lq.confirm_date = today
             lq.status = status
             lq.save()
