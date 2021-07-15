@@ -27,7 +27,6 @@ class UserForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     other_cooperative = forms.MultipleChoiceField(required=False,
                                                   choices=[])
-
     class Meta:
         model = Profile
         fields = ['msisdn', 'access_level', 'other_cooperative']

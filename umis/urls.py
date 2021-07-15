@@ -27,6 +27,7 @@ from endpoint import urls as ep_urls
 from messaging import urls as msg_urls
 from activity import urls as act_urls
 from payment import urls as pay_urls
+from credit import urls as credit_urls
 
 from dashboard.views import DashboardView
 from userprofile.views.authentication import LoginView, LogoutView
@@ -47,6 +48,7 @@ urlpatterns = [
     url(r'^endpoint/', include(ep_urls, namespace='endpoint')),
     url(r'^messaging/', include(msg_urls, namespace='messaging')),
     url(r'^activity/', include(act_urls, namespace='activity')),
+    url(r'^credit/', include(credit_urls, namespace='credit')),
     url(r'^login/$', LoginView.as_view(), name='login'),
     url(r'^logout/$', LogoutView.as_view(), name='logout'),
     url(r'^$', DashboardView.as_view(), name='dashboard'),

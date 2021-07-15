@@ -28,6 +28,7 @@
                                 
                                 <td>
                                     <a href="{% url 'product:supplier_update' item.id %}" class="md-btn md-btn-wave waves-effect waves-button uk-float-right">Edit</a>
+                                    <a href="{% url 'product:supplier_user_list' item.id %}" class="md-btn md-btn-wave waves-effect waves-button uk-float-right">Add Users</a>
                                 </td>
                             </tr>
                         {% endfor %}

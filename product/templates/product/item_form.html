@@ -8,16 +8,17 @@
         <div class="md-card-content">
             <form method="POST" class="new-event-form" role="role">
                 {% csrf_token %}
+                {% include "error_template.html" with form=form %}
+
                 <div class="uk-grid" data-uk-grid-margin>
                     <div class="uk-width-medium-1-2">
                         {% include "form/field.html" with field=form.name input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}
-                        {% include "form/field.html" with field=form.price input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}
+                        {% include "form/field.html" with field=form.supplier_price input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}
                                     
                     </div>
                     <div class="uk-width-medium-1-2">
                         {% include "form/field.html" with field=form.supplier input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}
-                        {% include "form/field.html" with field=form.unit input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}
-                        
+                        {% include "form/field.html" with field=form.price input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}
                     </div>
                 </div>
                 <div class="uk-grid">

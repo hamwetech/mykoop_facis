@@ -4,6 +4,27 @@
 {% if field == 'REJECTED' or field == 'FAILED' %}
 <span class="uk-text-danger uk-margin-remove">{{ field }}</span>
 {% endif %}
+{% if field == 'CONFIRM' %}
+<span class="uk-text-info uk-margin-remove">{{ field }}</span>
+{% endif %}
+{% if field == 'ACCEPT' %}
+<span class="uk-text-primary uk-margin-remove">{{ field }}</span>
+{% endif %}
+{% if field == 'SHIP' %}
+<span class="uk-text-primary uk-margin-remove">{{ field }}</span>
+{% endif %}
+{% if field == 'DELIVERED' %}
+<span class="uk-text-success uk-margin-remove">{{ field }}</span>
+{% endif %}
+{% if field == 'ACCEPT_DELIVERY' %}
+<span class="uk-text-success uk-margin-remove">{{ field }}</span>
+{% endif %}
+{% if field == 'COLLECTED' %}
+<span class="uk-text-success uk-margin-remove">{{ field }}</span>
+{% endif %}
+{% if field == 'PROCESSING' %}
+<span class="uk-text-info uk-margin-remove">{{ field }}</span>
+{% endif %}
 {% if field == 'PENDING' %}
 <span class="uk-text-warning uk-margin-remove">{{ field }}</span>
 {% endif %}

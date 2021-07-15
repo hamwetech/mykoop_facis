@@ -643,12 +643,25 @@ class MemberOrder(models.Model):
     member = models.ForeignKey(CooperativeMember, on_delete=models.CASCADE)
     order_reference = models.CharField(max_length=255, blank=True)
     order_price = models.DecimalField(max_digits=20, decimal_places=2, default=0, blank=True)
+    request_type = models.CharField(max_length=120, choices=[['LOAN', 'LOAN'], ['CASH', 'CASH'], ['MOBILE_MONEY', 'MOBILE_MONEY']])
     status = models.CharField(max_length=255, default='PENDING')
     order_date = models.DateTimeField()
+
+    confirmed_by = models.ForeignKey(User, related_name="user_confirm", null=True, blank=True)
     accept_date = models.DateTimeField(null=True, blank=True)
     reject_date = models.DateTimeField(null=True, blank=True)
     reject_reason = models.CharField(max_length=120, null=True, blank=True)
+
+    approve_date = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(User, related_name="approver", null=True, blank=True)
+    approval_reject_reason = models.CharField(max_length=120, null=True, blank=True)
+
+    accept_processing_by = models.ForeignKey(User, related_name="processor", null=True, blank=True)
+    processing_start_date = models.DateTimeField(null=True, blank=True)
+    processing_reject_reason = models.CharField(max_length=120, null=True, blank=True)
+
     ship_date = models.DateTimeField(null=True, blank=True)
+    delivery_date = models.DateTimeField(null=True, blank=True)
     delivery_accept_date = models.DateTimeField(null=True, blank=True)
     delivery_reject_date = models.DateTimeField(null=True, blank=True)
     delivery_reject_reason = models.CharField(max_length=120, null=True, blank=True)
@@ -666,6 +679,13 @@ class MemberOrder(models.Model):
     def get_orders(self):
         return OrderItem.objects.filter(order=self)
 
+    @property
+    def get_supplier_orders(self, supplier):
+        order = OrderItem.objects.filter(item__supplier=supplier)
+        if order.exits():
+            return order.count()
+        return 0
+
     
 class OrderItem(models.Model):
     order = models.ForeignKey(MemberOrder, blank=True, on_delete=models.CASCADE)
@@ -673,6 +693,26 @@ class OrderItem(models.Model):
     quantity = models.DecimalField(max_digits=20, decimal_places=2)
     unit_price = models.DecimalField(max_digits=20, decimal_places=2, blank=True)
     price = models.DecimalField(max_digits=20, decimal_places=2, blank=True)
+    status = models.CharField(max_length=255, null=True, blank=True, default='PENDING')
+    confirmed_by = models.ForeignKey(User, related_name="item_user_confirm", null=True, blank=True)
+    confirm_date = models.DateTimeField(null=True, blank=True)
+    reject_date = models.DateTimeField(null=True, blank=True)
+    reject_reason = models.CharField(max_length=120, null=True, blank=True)
+
+    approve_date = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(User, related_name="item_approver", null=True, blank=True)
+    approval_reject_reason = models.CharField(max_length=120, null=True, blank=True)
+
+    accept_processing_by = models.ForeignKey(User, related_name="item_processor", null=True, blank=True)
+    processing_start_date = models.DateTimeField(null=True, blank=True)
+    processing_reject_reason = models.CharField(max_length=120, null=True, blank=True)
+
+    ship_date = models.DateTimeField(null=True, blank=True)
+    delivery_date = models.DateTimeField(null=True, blank=True)
+    delivery_accept_date = models.DateTimeField(null=True, blank=True)
+    delivery_reject_date = models.DateTimeField(null=True, blank=True)
+    delivery_reject_reason = models.CharField(max_length=120, null=True, blank=True)
+    collect_date = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(User, blank=True, on_delete=models.CASCADE)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
@@ -682,7 +722,22 @@ class OrderItem(models.Model):
         
     def __unicode__(self):
         return "%s" % self.item or u''
-    
-    
-    
-    
+
+
+class Transaction(models.Model):
+    transaction_reference = models.CharField(max_length=160)
+    transaction_category = models.CharField(max_length=120)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    entry_type = models.CharField(max_length=64, null=True, blank=True)
+    members = models.ForeignKey(CooperativeMember, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True)
+    created_by = models.ForeignKey(User, null=True, blank=True, related_name="transaction_user")
+    created_by_name = models.CharField(max_length=160, null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'transaction'
+
+    def __unicode__(self):
+        return "%s" % self.transaction_reference

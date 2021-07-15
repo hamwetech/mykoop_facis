@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'messaging',
     'activity',
     'payment',
+    'credit',
 ]
 
 MIDDLEWARE = [
@@ -180,7 +181,7 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             #'filename': "/var/log/hamwepay.log",
-            'filename': "/tmp/umis.log",
+            'filename': "/tmp/ftf.log",
             'maxBytes': 50000,
             'backupCount': 20,
             'formatter': 'standard',
@@ -202,7 +203,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
-        'umis': {
+        'ftf': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
         },

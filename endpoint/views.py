@@ -161,6 +161,7 @@ class MemberEndpoint(APIView):
                         surname=request.data.get("surname"),
                         first_name=request.data.get("first_name"),
                         other_name=request.data.get("other_name"),
+                        id_number=request.data.get("id_number"),
                         date_of_birth=request.data.get("date_of_birth"),
                         gender=request.data.get("gender"),
                         maritual_status=request.data.get("maritual_status"),

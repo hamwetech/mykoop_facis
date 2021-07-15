@@ -8,7 +8,8 @@ from django.forms.formsets import formset_factory, BaseFormSet
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
-from coop.models import MemberOrder, CooperativeMember
+from credit.models import LoanRequest, CreditManager
+from coop.models import MemberOrder, CooperativeMember, OrderItem
 from coop.forms import OrderItemForm, MemberOrderForm
 from coop.views.member import save_transaction
 from conf.utils import generate_alpanumeric, genetate_uuid4, log_error, log_debug, generate_numeric, float_to_intstring, get_deleted_objects,\
@@ -32,16 +33,24 @@ class MemberOrderListView(ExtraContext, ListView):
     def get_queryset(self):
         queryset = super(MemberOrderListView, self).get_queryset()
         
-        if not self.request.user.profile.is_union():
-            if not self.request.user.profile.is_partner():
-                cooperative = self.request.user.cooperative_admin.cooperative 
+        if self.request.user.profile.is_cooperative():
+            if not self.request.user.is_superuser:
+                cooperative = self.request.user.cooperative_admin.cooperative
                 queryset = queryset.filter(member__cooperative=cooperative)
+
+        if self.request.user.profile.is_supplier():
+            if not self.request.user.is_superuser:
+                supplier = self.request.user.supplier_admin.supplier
+                order_item = OrderItem.object.fitler(supplier=supplier)
+                o = []
+                for oi in order_item:
+                    o.append(oi.order )
+                queryset = queryset.filter(get_supplier_orders=cooperative)
         return queryset
     
     def get_context_data(self, **kwargs):
         context = super(MemberOrderListView, self).get_context_data(**kwargs)
         return context
-    
     
 
 class MemberOrderCreateView(View):
@@ -100,7 +109,8 @@ class MemberOrderCreateView(View):
             'active': ['_order'],
         }
         return render(request, self.template_name, data)
-    
+
+
 class MemberOrderDetailView(ExtraContext, DetailView):
     model = MemberOrder
     extra_context = {'active': ['_order']}
@@ -134,8 +144,11 @@ class MemberOrderStatusView(View):
             mo = MemberOrder.objects.get(pk=pk)
             if status == 'ACCEPT':
                 mo.accept_date = today
+
             if status == 'SHIP':
                 mo.ship_date = today
+            if status == 'DELIVERED':
+                mo.delivery_date = today
             if status == 'ACCEPT_DELIVERY':
                 mo.delivery_accept_date = today
             if status == 'REJECT_DELIVERY':
@@ -148,4 +161,55 @@ class MemberOrderStatusView(View):
             log_error()
         
         return redirect('coop:order_list')
-    
+
+
+class OrderItemStatusView(View):
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        status = self.kwargs.get('status')
+        today = datetime.datetime.today()
+        mm = None
+        try:
+            mo = OrderItem.objects.get(pk=pk)
+            mm = MemberOrder.objects.get(pk=mo.order.id)
+            if status == 'CONFIRMED':
+                mo.confirm_date = today
+                mm.status = 'PROCESSING'
+                mm.save()
+            #     If Loan Create Request
+                if mm.request_type == "LOAN":
+                    today = datetime.datetime.now()
+                    lrq = LoanRequest.objects.filter(create_date__year=today.strftime("%Y"))
+                    ln_cnt = lrq.count() + 1
+                    reference = "LRQ/%s/%s" % (today.strftime("%y"), ln_cnt)
+
+                    LoanRequest.objects.create(
+                        reference = reference,
+                        member=mm.member,
+                        credit_manager=CreditManager.objects.all()[0],
+                        requested_amount =mo.price,
+                        order_item=mo,
+                        request_date=datetime.datetime.now()
+                    )
+            #         to do send email to credit management email
+            if status == 'APPROVED':
+                mo.approve_date = today
+            if status == 'PROCESSING':
+                mo.processing_start_date = today
+            if status == 'SHIP':
+                mo.ship_date = today
+            if status == 'DELIVERED':
+                mo.delivery_date = today
+            if status == 'ACCEPT_DELIVERY':
+                mo.delivery_accept_date = today
+            if status == 'REJECT_DELIVERY':
+                mo.delivery_reject_date = today
+            if status == 'COLLECTED':
+                mo.collect_date = today
+            mo.status = status
+            mo.save()
+        except Exception as e:
+            print(e)
+            log_error()
+
+        return redirect('coop:order_detail', pk=mm.id)

@@ -90,7 +90,8 @@ class ProductVariationPriceLog(models.Model):
         
     def __unicode__(self):
         return "%s" % self.product
-    
+
+
 class Supplier(models.Model):
     name = models.CharField(max_length=255, unique=True)
     create_date = models.DateTimeField(auto_now_add=True)
@@ -101,17 +102,33 @@ class Supplier(models.Model):
         
     def __unicode__(self):
         return self.name
-        
+
+    def __str__(self):
+        return self.name
+
+
+class SupplierAdmin(models.Model):
+    user = models.OneToOneField(User,  blank=True, related_name='supplier_admin')
+    supplier = models.ForeignKey(Supplier, blank=True, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "%s" % self.user.get_full_name()
+
+
 class Item(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     supplier = models.ForeignKey(Supplier, null=True, blank=True, on_delete=models.CASCADE)
+    supplier_price = models.DecimalField(max_digits=20, decimal_places=2)
     price = models.DecimalField(max_digits=20, decimal_places=2)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     
     class Meta:
         db_table = 'item'
-        
+
     def __unicode__(self):
         return self.name
     
@@ -119,6 +136,23 @@ class Item(models.Model):
 # def create_price_log(sender, instance, created, **kwargs):
 #     if created:
 #         ProductVariationPriceLog.objects.create(variation=instance)
+
+
+class SalesCommission(models.Model):
+    supplier = models.ForeignKey(Supplier, null=True, blank=True, on_delete=models.CASCADE)
+    category = models.CharField(max_length=64, choices=(('AGENT', 'AGENT'), ('COOPERATIVE', 'COOPERATIVE')))
+    commission_value = models.DecimalField(max_digits=12, decimal_places=2)
+    transaction_type = models.CharField(max_length=64, choices=(('PERCENT', 'PERCENT'), ('AMOUNT', 'AMOUNT')))
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'sale_commission'
+        unique_together = ['supplier', 'category']
+
+    def __unicode__(self):
+        return self.commission_value
+
 
 @receiver(post_save, sender=ProductVariationPrice)
 def save_price_log(sender, instance, **kwargs):

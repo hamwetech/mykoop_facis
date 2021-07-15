@@ -8,6 +8,7 @@
         <div class="md-card-content">
             <form method="POST" class="new-event-form" role="role">
                 {% csrf_token %}
+                {% include "error_template.html" with form=form %}
                 <div class="uk-grid" data-uk-grid-margin>
                     <div class="uk-width-medium-1-2">
                         {% include "form/field.html" with field=form.name input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}

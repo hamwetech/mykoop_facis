@@ -547,8 +547,11 @@ class CollectionFilterForm(forms.Form):
 class MemberOrderForm(forms.ModelForm):
     class Meta:
         model = MemberOrder
-        fields = ['cooperative', 'member', 'order_date']
-        
+        fields = ['cooperative', 'member', 'request_type', 'order_date']
+        # widgets = {
+        #     'order_date': forms.TextInput(attrs={'autocomplete': 'off'}),
+        # }
+
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super(MemberOrderForm, self).__init__(*args, **kwargs)
@@ -558,6 +561,9 @@ class MemberOrderForm(forms.ModelForm):
             self.fields['cooperative'].initial=self.request.user.cooperative_admin.cooperative
         
         self.fields['member'].queryset = CooperativeMember.objects.none()
+        self.fields['order_date'].widget.attrs.update({
+            'autocomplete': 'off'
+        })
         
         if 'cooperative' in self.data:
             try:

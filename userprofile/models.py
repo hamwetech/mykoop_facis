@@ -73,6 +73,18 @@ class Profile(models.Model):
             return True
         return False
 
+    def is_supplier(self):
+        if self.access_level:
+            if self.access_level.name.upper() == "SUPPLIER" or self.user.is_superuser:
+                return True
+        return False
+
+    def is_credit_manager(self):
+        if self.access_level:
+            if self.access_level.name.upper() == "CREDIT_MANAGER" or self.user.is_superuser:
+                return True
+        return False
+
     def __str__(self):
         return self.user.get_full_name()
         
