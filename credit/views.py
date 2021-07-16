@@ -9,9 +9,11 @@ from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from userprofile.models import Profile, AccessLevel
-
-from credit.models import CreditManager, LoanRequest, CreditManagerAdmin
+from credit.utils import create_loan_transaction
+from credit.models import CreditManager, LoanRequest, CreditManagerAdmin, LoanTransaction
 from credit.forms import CreditManagerForm, CreditManagerUserForm
+
+from coop.utils import credit_member_account
 from coop.models import MemberOrder, CooperativeMember, OrderItem
 from conf.utils import generate_alpanumeric, genetate_uuid4, log_error, log_debug, generate_numeric, float_to_intstring, \
     get_deleted_objects, \
@@ -112,6 +114,7 @@ class CreditManagerAdminListView(ExtraContext, ListView):
 class LoanRequestListView(ExtraContext, ListView):
     model=LoanRequest
     extra_context = {'active': ['_credit', '__loan']}
+    ordering = ('-id')
 
 
 class LoanRequestDetailView(ExtraContext, DetailView):
@@ -130,6 +133,16 @@ class ApproveLoan(View):
             if status == 'APPROVED':
                 lq.confirm_date = today
                 OrderItem.objects.filter(pk=lq.order_item.id).update(status="APPROVED")
+                params = {
+                    "loan": lq,
+                    "member": lq.member,
+                    "credit_manager": lq.credit_manager,
+                    "amount": lq.requested_amount,
+                    "transaction_type": 'DEBIT',
+                    "created_by": request.user,
+                }
+                amt = create_loan_transaction(params)
+                credit_member_account({"member": lq.member, "amount": amt})
             if status == 'REJECTED':
                 lq.confirm_date = today
             lq.status = status
@@ -138,3 +151,8 @@ class ApproveLoan(View):
             log_error()
 
         return redirect('credit:loan_list')
+
+
+class LoanTransactionListView(ExtraContext, ListView):
+    model=LoanTransaction
+    extra_context = {'active': ['_credit', '__loan_transaction']}

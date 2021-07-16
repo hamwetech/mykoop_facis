@@ -159,7 +159,7 @@ class LoginView(View):
                                     right_cooperative = "False"
                                     if coop == user.cooperative_admin.cooperative:
                                         right_cooperative = "True"
-                            if cooperative or user.profile.is_union() or user.profile.is_partner() or user.profile.is_supplier():
+                            if cooperative or user.profile.is_union() or user.profile.is_partner() or user.profile.is_supplier() or user.profile.is_credit_manager():
                                 print(right_cooperative)
                                 print(cooperative)
                                 if cooperative:
@@ -171,7 +171,7 @@ class LoginView(View):
                                         return redirect('dashboard')
                                     if right_cooperative == "false":
                                         data['errors'] = "Cooperative not identified. Please contact the Admin"
-                                elif user.profile.is_union() or user.profile.is_supplier() or user.profile.is_partner() or user.is_superuser:
+                                elif user.profile.is_union() or user.profile.is_supplier() or user.profile.is_partner() or user.is_superuser or user.profile.is_credit_manager():
                                     login(request, user)
                                     return redirect('dashboard')
                                 else:

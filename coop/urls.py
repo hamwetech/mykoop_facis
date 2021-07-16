@@ -8,6 +8,7 @@ from coop.views.order import *
 urlpatterns = [
     
      url(r'order/status/(?P<pk>[\w]+)/(?P<status>[\w]+)$', MemberOrderStatusView.as_view(), name='order_status'),
+     url(r'order/item/list/$', MemberOrderItemListView.as_view(), name='order_item_list'),
      url(r'order/item/status/(?P<pk>[\w]+)/(?P<status>[\w]+)$', OrderItemStatusView.as_view(), name='item_status'),
 
      url(r'order/delete/(?P<pk>[\w]+)/$', MemberOrderDeleteView.as_view(), name='order_delete'),

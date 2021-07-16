@@ -170,6 +170,7 @@
     {% endif %}
     <!-- Prices -->
     <!-- tasks -->
+{% if request.user.profile.is_union or request.user.profile.is_cooperative %}
     <div class="uk-grid" data-uk-grid-margin data-uk-grid-match="{target:'.md-card-content'}">
         <div class="uk-width-medium-1-2">
             <div class="md-card">
@@ -260,6 +261,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         <!--<div class="uk-width-medium-1-2">-->
         <!--    <div class="md-card">-->
         <!--        <div class="md-card-content">-->

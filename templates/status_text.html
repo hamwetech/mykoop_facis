@@ -4,8 +4,11 @@
 {% if field == 'REJECTED' or field == 'FAILED' %}
 <span class="uk-text-danger uk-margin-remove">{{ field }}</span>
 {% endif %}
-{% if field == 'CONFIRM' %}
+{% if field == 'CONFIRMED' %}
 <span class="uk-text-info uk-margin-remove">{{ field }}</span>
+{% endif %}
+{% if field == 'APPROVED' %}
+<span class="uk-text-primary uk-margin-remove">{{ field }}</span>
 {% endif %}
 {% if field == 'ACCEPT' %}
 <span class="uk-text-primary uk-margin-remove">{{ field }}</span>

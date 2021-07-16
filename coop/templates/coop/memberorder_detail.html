@@ -88,20 +88,22 @@
                                             <div class="uk-dropdown uk-dropdown-small">
                                                 <ul class="uk-nav">
 
-                                                    {% if request.user.profile.is_union and item.status == 'PENDING' %}
-                                                    <li><a href="{% url 'coop:item_status' pk=item.id status='CONFIRMED' %}"><i class="material-icons">done_all</i> Confirm</a></li>
-                                                    <li><a href=""><i class="material-icons">clear</i> Reject</a></li>
+                                                    {% if request.user.profile.is_cooperative and item.status == 'PENDING' %}
+                                                        <li><a href="{% url 'coop:item_status' pk=item.id status='CONFIRMED' %}"><i class="material-icons">done_all</i> Confirm</a></li>
+                                                        <li><a href=""><i class="material-icons">clear</i> Reject</a></li>
                                                     {% endif %}
 
-                                                    {% if request.user.profile.is_union and item.status == 'CONFIRMED' %}
-                                                    <li><a href="{% url 'coop:item_status' pk=item.id status='APPROVED' %}"><i class="material-icons">local_shipping</i> Approve</a></li>
+                                                    {% if item.order.request_type != "LOAN" %}
+                                                        {% if request.user.profile.is_union and item.status == 'CONFIRMED' %}
+                                                        <li><a href="{% url 'coop:item_status' pk=item.id status='APPROVED' %}"><i class="material-icons">local_shipping</i> Approve</a></li>
+                                                        {% endif %}
                                                     {% endif %}
 
-                                                    {% if request.user.profile.is_union and item.status == 'APPROVED' %}
+                                                    {% if request.user.profile.is_supplier and item.status == 'APPROVED' %}
                                                     <li><a href="{% url 'coop:item_status' pk=item.id status='PROCESSING' %}"><i class="material-icons">local_shipping</i> Process</a></li>
                                                     {% endif %}
 
-                                                    {% if request.user.profile.is_union and item.status == 'PROCESSING' %}
+                                                    {% if request.user.profile.is_supplier and item.status == 'PROCESSING' %}
                                                     <li><a href="{% url 'coop:item_status' pk=item.id status='SHIP' %}"><i class="material-icons">local_shipping</i> Ship</a></li>
                                                     {% endif %}
 
@@ -110,7 +112,7 @@
 <!--                                                    <li><a href="{% url 'coop:order_delete' pk=item.id %}"><i class="material-icons">&#xE872;</i> Delete</a></li>-->
                                                     {% endif %}
 
-                                                    {% if request.user.profile.is_cooperative and item.status == 'SHIP' %}
+                                                    {% if request.user.profile.is_supplier and item.status == 'SHIP' %}
                                                     <li><a href="{% url 'coop:item_status' pk=item.id status='DELIVERED' %}"><i class="material-icons">thumb_up</i> Deliver</a></li>
                                                     {% endif %}
 

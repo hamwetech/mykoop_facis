@@ -6,7 +6,7 @@
 {% block page_content %}
     <div class="uk-grid" data-uk-grid-margin>
         <div class="uk-width-medium-1-2">
-            <h2 class="heading_a uk-margin-bottom">Loan Request List</h2>
+            <h2 class="heading_a uk-margin-bottom">Loan Transactions List</h2>
         </div>
         <div class="uk-width-medium-1-2">
             
@@ -24,8 +24,8 @@
                         <th>Member</th>
                         <th>Cooperative</th>
                         <th>Amount</th>
-                        <th>Request Date</th>
-                        <th>Status</th>
+                        <th>Transaction Type</th>
+                        <th>Date</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -35,9 +35,9 @@
                                 <td>{{ item.reference }}</td>
                                 <td>{{ item.member }}</td>
                                 <td>{{ item.member.cooperative }}</td>
-                                <td>{{ item.requested_amount|intcomma }}</td>
-                                <td>{{ item.request_date }}</td>
-                                <td>{{ item.status }}</td>
+                                <td>{{ item.amount|intcomma }}</td>
+                                <td>{{ item.transaction_type }}</td>
+                                <td>{{ item.create_date }}</td>
                                 <td>
                                     <a href="{% url 'credit:loan_detail' item.id %}" class="md-btn md-btn-wave waves-effect waves-button uk-float-right">OPEN</a>
                                 </td>

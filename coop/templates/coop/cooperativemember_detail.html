@@ -18,9 +18,9 @@
                     <span class="uk-text-truncate" id="user_edit_uname">{{ object.surname }} {{ object.first_name }} </span> <div> {{ object.phone_number}}</div>
                 <span class="sub-heading" id="user_edit_position">
                     Role: <b>{{ object.coop_role|title }}</b> |
-                     Quantity Collected: <b>{{ object.collection_quantity|intcomma  }}</b> |
-                    Amount Balance: <b>{{ object.collection_amount|intcomma  }}</b> | 
-                    Paid Amount<b> {{ object.paid_amount|intcomma  }}</b></span>
+                    Quantity Collected: <b>{{ object.collection_quantity|intcomma  }}</b> |
+                    Account Balance: <b>{{ object.balance|intcomma  }}</b>
+                </span>
                 </h2>
             </div>
             <div class="md-fab-wrapper">

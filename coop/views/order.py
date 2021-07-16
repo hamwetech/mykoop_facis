@@ -9,6 +9,7 @@ from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from credit.models import LoanRequest, CreditManager
+from credit.utils import create_loan_transaction
 from coop.models import MemberOrder, CooperativeMember, OrderItem
 from coop.forms import OrderItemForm, MemberOrderForm
 from coop.views.member import save_transaction
@@ -41,17 +42,17 @@ class MemberOrderListView(ExtraContext, ListView):
         if self.request.user.profile.is_supplier():
             if not self.request.user.is_superuser:
                 supplier = self.request.user.supplier_admin.supplier
-                order_item = OrderItem.object.fitler(supplier=supplier)
+                order_item = OrderItem.objects.filter(item__supplier=supplier)
                 o = []
                 for oi in order_item:
-                    o.append(oi.order )
-                queryset = queryset.filter(get_supplier_orders=cooperative)
+                    o.append(oi.order)
+                queryset = queryset.filter(get_supplier_orders=supplier)
         return queryset
     
     def get_context_data(self, **kwargs):
         context = super(MemberOrderListView, self).get_context_data(**kwargs)
         return context
-    
+
 
 class MemberOrderCreateView(View):
     template_name = 'coop/order_item_form.html'
@@ -114,8 +115,28 @@ class MemberOrderCreateView(View):
 class MemberOrderDetailView(ExtraContext, DetailView):
     model = MemberOrder
     extra_context = {'active': ['_order']}
-    
-    
+
+
+class MemberOrderItemListView(ExtraContext, ListView):
+    model = OrderItem
+    ordering = ['-create_date']
+    extra_context = {'active': ['_order']}
+
+    def get_queryset(self):
+        queryset = super(MemberOrderItemListView, self).get_queryset()
+
+        if self.request.user.profile.is_cooperative():
+            if not self.request.user.is_superuser:
+                cooperative = self.request.user.cooperative_admin.cooperative
+                queryset = queryset.filter(order__member__cooperative=cooperative)
+
+        if self.request.user.profile.is_supplier():
+            if not self.request.user.is_superuser:
+                supplier = self.request.user.supplier_admin.supplier
+                queryset = queryset.filter(item__supplier=supplier)
+        return queryset
+
+
 class MemberOrderDeleteView(ExtraContext, DeleteView):
     model = MemberOrder
     extra_context = {'active': ['_order']}
@@ -181,8 +202,7 @@ class OrderItemStatusView(View):
                     today = datetime.datetime.now()
                     lrq = LoanRequest.objects.filter(create_date__year=today.strftime("%Y"))
                     ln_cnt = lrq.count() + 1
-                    reference = "LRQ/%s/%s" % (today.strftime("%y"), ln_cnt)
-
+                    reference = "LRQ/%s/%s" % (today.strftime("%y"), format(ln_cnt, '04'))
                     LoanRequest.objects.create(
                         reference = reference,
                         member=mm.member,
@@ -211,5 +231,6 @@ class OrderItemStatusView(View):
         except Exception as e:
             print(e)
             log_error()
-
+        if request.user.profile.is_supplier():
+            return redirect('coop:order_item_list')
         return redirect('coop:order_detail', pk=mm.id)

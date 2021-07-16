@@ -58,3 +58,22 @@ class LoanRequest(models.Model):
 
     def __unicode__(self):
         return "%s" % self.member.get_name() or u''
+
+
+class LoanTransaction(models.Model):
+    reference = models.CharField(max_length=255, unique=True)
+    member = models.ForeignKey(CooperativeMember, on_delete=models.CASCADE)
+    credit_manager = models.ForeignKey(CreditManager, null=True, blank=True)
+    amount = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    transaction_type = models.CharField(max_length=16, choices=(('CREDIT', 'CREDIT'), ('DEBIT', 'DEBIT')))
+    loan = models.ForeignKey(LoanRequest, null=True, blank=True)
+    created_by = models.ForeignKey(User, null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'loan_transaction'
+
+    def __unicode__(self):
+        return "%s" % self.member.get_name() or u''
+
