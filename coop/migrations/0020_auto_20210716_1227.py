@@ -17,9 +17,9 @@ class Migration(migrations.Migration):
             name='balance',
             field=models.DecimalField(blank=True, decimal_places=2, default=0, max_digits=10),
         ),
-        migrations.AddField(
-            model_name='transaction',
-            name='description',
-            field=models.CharField(blank=True, max_length=255, null=True),
-        ),
+        # migrations.AddField(
+        #     model_name='transaction',
+        #     name='description',
+        #     field=models.CharField(blank=True, max_length=255, null=True),
+        # ),
     ]
