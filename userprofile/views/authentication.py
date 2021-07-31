@@ -128,7 +128,9 @@ class LoginView(View):
         data = dict()
         data["form"] = LoginForm
         host = request.get_host()
+        log_debug("Host: %s" % host)
         coop = check_coop_url(host)
+        log_debug("Cooperative Host: %s" % coop)
         if coop:
             data["coop"] = coop
         return render(request, self.template_name, data)
