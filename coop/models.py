@@ -10,9 +10,11 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
+from account.models import Account
 from conf.models import District, County, SubCounty, Village, Parish, PaymentMethod
 from product.models import Product, ProductVariation, ProductUnit, Item
 # from partner.models import PartnerTrainingModule
+
 
 class Cooperative(models.Model):
     name = models.CharField(max_length=150, unique=True)
@@ -50,8 +52,6 @@ class Cooperative(models.Model):
     def member_count(self):
         members = CooperativeMember.objects.filter(cooperative=self)
         return members.count()
-    
-    
     
 
 class CooperativeSharePrice(models.Model):
@@ -93,7 +93,8 @@ class TickControl(models.Model):
         
     def __unicode__(self):
         return self.method
-    
+
+
 class CommonDisease(models.Model):
     name = models.CharField(max_length=120, unique=True)
     local = models.CharField('Local Name', max_length=160, null=True, blank=True)
@@ -206,11 +207,12 @@ class CooperativeMember(models.Model):
     first_name = models.CharField(max_length=150, null=True, blank=True)
     other_name = models.CharField(max_length=150, null=True, blank=True)
     is_refugee = models.BooleanField(default=False)
+    is_handicap = models.BooleanField(default=False)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=(('Male', 'Male'), ('Female', 'Female')), null=True, blank=True)
     maritual_status = models.CharField(max_length=10, null=True, blank=True, choices=(('Single', 'Single'), ('Married', 'Married'),
         ('Widowed', 'Widow'), ('Divorced', 'Divorced')))
-    id_number = models.CharField(max_length=150, null=True, blank=True)
+    id_number = models.CharField(max_length=150, null=True, blank=True, unique=True)
     id_type = models.CharField(max_length=150, null=True, blank=True, choices=(('nin', 'National ID'), ('dl', 'Drivers Lisence'),
         ('pp', 'PassPort'), ('o', 'Other')))
     phone_number = models.CharField(max_length=12, null=True, blank=True)
@@ -225,9 +227,6 @@ class CooperativeMember(models.Model):
     gps_coodinates = models.CharField(max_length=150, null=True, blank=True)
     coop_role = models.CharField(max_length=150, choices=(('Chairperson', 'Chairperson'), ('Vice', 'Vice'), ('Treasurer', 'Treasurer'),
         ('Secretary', 'Secretary'), ('Committee Member', 'Committee Member'),  ('Member', 'Member')))
-    cotton_acreage = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank=True)
-    soya_beans_acreage = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank=True)
-    soghum_acreage = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank=True)
     land_acreage = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank=True)
     product = models.CharField(max_length=255, null=True, blank=True)
     shares = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)
@@ -236,6 +235,7 @@ class CooperativeMember(models.Model):
     collection_quantity = models.DecimalField(max_digits=32, decimal_places=2, default=0, blank=True)
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)
+    account = models.OneToOneField(Account, null=True, blank=True, related_name="member_account")
     is_active = models.BooleanField(default=1)
     qrcode = models.ImageField(upload_to='qrcode', blank=True, null=True)
     app_id = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)
@@ -245,22 +245,19 @@ class CooperativeMember(models.Model):
     
     class Meta:
         db_table = 'cooperative_member'
-        
-    
+
     def __unicode__(self):
-        return "{} {}".format(self.surname, self.first_name)
+        return "{} {} {}".format(self.surname, self.first_name, self.other_name)
     
     def get_name(self):
-        return "%s %s" % (self.surname, self.first_name)
-    
-    
+        return "%s %s %s" % (self.surname, self.first_name, self.other_name)
+
     def get_absolute_url(self):
         return reverse('events.views.details', args=[str(self.id)])
 
     def age(self, obj):
         m = date.today() - obj.date_of_birth
         return m.days / 365
-
 
     def generate_qrcode(self):
         qr = qrcode.QRCode(
@@ -332,8 +329,38 @@ class CooperativeMember(models.Model):
     #     return total
 
 
+@receiver(post_save, sender=CooperativeMember)
+def create_account(sender, instance, created, **kwargs):
+    today = datetime.now()
+    lrq = Account.objects.all()
+    ln_cnt = lrq.count() + 1
+    account_number = "MBR/%s/%s" % (today.strftime("%y"), format(ln_cnt, '04'))
 
-    
+    if created:
+        acc = Account.objects.create(account_number=account_number, balance=0)
+        instance.account=acc
+        instance.save()
+    else:
+        acc = Account.objects.filter(account_number=account_number)
+        if acc.count() < 1:
+            pass
+            # acc = Account.objects.create(account_number=account_number, balance=0)
+            # instance.account = acc
+            # instance.save()
+
+
+@receiver(post_save, sender=CooperativeMember)
+def save_account(sender, instance, **kwargs):
+    today = datetime.now()
+    lrq = Account.objects.all()
+    ln_cnt = lrq.count() + 1
+    account_number = "MBR/%s/%s" % (today.strftime("%y"), format(ln_cnt, '04'))
+
+    if not instance.account:
+        acc = Account.objects.create(account_number=account_number, balance=0)
+        instance.account = acc
+        instance.save()
+
     
 class CooperativeMemberBusiness(models.Model):
     cooperative_member = models.OneToOneField(CooperativeMember, null=True, blank=True, on_delete=models.CASCADE)
@@ -466,7 +493,6 @@ class CooperativeMemberProduct(models.Model):
         return self.gender or u''
     
 
-
 class CooperativeMemberSupply(models.Model):
     
     cooperative_member = models.ForeignKey(CooperativeMember, null=True, blank=True, on_delete=models.CASCADE)
@@ -522,8 +548,7 @@ class CooperativeMemberSubscriptionLog(models.Model):
     
     def __unicode__(self):
         return u'%s' % self.transaction_id or u''
-        
-        
+
 
 class CooperativeMemberSharesLog(models.Model):
     cooperative_member = models.ForeignKey(CooperativeMember, on_delete=models.CASCADE)
@@ -545,12 +570,14 @@ class CooperativeMemberSharesLog(models.Model):
     def __unicode__(self):
         return u'%s' % self.transaction_id or u''
 
+
 class MemberSupplySchedule(models.Model):
     pass
 
     class Meta:
         db_table = 'cooperative_member_supply_schedule'
-    
+
+
 class MemberSupplyRequest(models.Model):
     cooperative_member = models.ForeignKey(CooperativeMember, on_delete=models.CASCADE)
     transaction_reference = models.CharField(max_length=254, null=True, blank=True)
@@ -583,7 +610,6 @@ class MemberSupplyRequest(models.Model):
         delta = d1 - d0
         return delta.days    
     
-        
 
 class MemberSupplyRequestVariation(models.Model):
     supply_request = models.ForeignKey(MemberSupplyRequest, blank=True, null=True, on_delete=models.CASCADE)
@@ -644,7 +670,7 @@ class MemberOrder(models.Model):
     member = models.ForeignKey(CooperativeMember, on_delete=models.CASCADE)
     order_reference = models.CharField(max_length=255, blank=True)
     order_price = models.DecimalField(max_digits=20, decimal_places=2, default=0, blank=True)
-    request_type = models.CharField(max_length=120, choices=[['LOAN', 'LOAN'], ['CASH', 'CASH'], ['MOBILE_MONEY', 'MOBILE_MONEY']])
+    request_type = models.CharField(max_length=120, choices=[['LOAN', 'LOAN'], ['CASH', 'CASH'], ['MOBILE_MONEY', 'MOBILE_MONEY']], default="LOAN")
     status = models.CharField(max_length=255, default='PENDING')
     order_date = models.DateTimeField()
 
@@ -725,21 +751,27 @@ class OrderItem(models.Model):
         return "%s" % self.item or u''
 
 
-class Transaction(models.Model):
-    transaction_reference = models.CharField(max_length=160)
-    transaction_category = models.CharField(max_length=120)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    entry_type = models.CharField(max_length=64, null=True, blank=True)
-    members = models.ForeignKey(CooperativeMember, null=True, blank=True)
-    user = models.ForeignKey(User, null=True, blank=True)
-    description = models.CharField(max_length=255, null=True, blank=True)
-    created_by = models.ForeignKey(User, null=True, blank=True, related_name="transaction_user")
-    created_by_name = models.CharField(max_length=160, null=True, blank=True)
-    create_date = models.DateTimeField(auto_now_add=True)
-    update_date = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'transaction'
-
-    def __unicode__(self):
-        return "%s" % self.transaction_reference
+# class Transaction(models.Model):
+#     transaction_reference = models.CharField(max_length=160)
+#     transaction_category = models.CharField(max_length=120)
+#     amount = models.DecimalField(max_digits=12, decimal_places=2)
+#     entry_type = models.CharField(max_length=64, null=True, blank=True)
+#     members = models.ForeignKey(CooperativeMember, null=True, blank=True)
+#     user = models.ForeignKey(User, null=True, blank=True)
+#     description = models.CharField(max_length=255, null=True, blank=True)
+#     created_by = models.ForeignKey(User, null=True, blank=True, related_name="transaction_user")
+#     created_by_name = models.CharField(max_length=160, null=True, blank=True)
+#     create_date = models.DateTimeField(auto_now_add=True)
+#     update_date = models.DateTimeField(auto_now=True)
+#
+#     class Meta:
+#         db_table = 'transaction'
+#
+#     def __unicode__(self):
+#         return "%s" % self.transaction_reference
+#
+#
+# class Account(models.Model):
+#     account_number = models.CharField(max_length=255, unique=True)
+#     balance = models.DecimalField(max_digits=12, decimal_places=2)
+#

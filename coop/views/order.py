@@ -133,7 +133,7 @@ class MemberOrderItemListView(ExtraContext, ListView):
         if self.request.user.profile.is_supplier():
             if not self.request.user.is_superuser:
                 supplier = self.request.user.supplier_admin.supplier
-                queryset = queryset.filter(item__supplier=supplier)
+                queryset = queryset.filter(item__supplier=supplier).exclude(status__in=['PENDING', 'CONFIRMED'])
         return queryset
 
 
@@ -222,15 +222,28 @@ class OrderItemStatusView(View):
                 mo.delivery_date = today
             if status == 'ACCEPT_DELIVERY':
                 mo.delivery_accept_date = today
+
             if status == 'REJECT_DELIVERY':
                 mo.delivery_reject_date = today
             if status == 'COLLECTED':
                 mo.collect_date = today
             mo.status = status
             mo.save()
+            self.update_order(mm)
         except Exception as e:
             print(e)
             log_error()
         if request.user.profile.is_supplier():
             return redirect('coop:order_item_list')
         return redirect('coop:order_detail', pk=mm.id)
+
+    def update_order(self, order):
+        mo = OrderItem.objects.filter(order=order)
+        pending_items = []
+        for item in mo:
+            if item.status != "ACCEPT_DELIVERY":
+                pending_items.append(item.id)
+
+        if len(pending_items) == 0:
+            order.status = "COMPLETED"
+            order.save()

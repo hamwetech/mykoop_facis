@@ -561,15 +561,13 @@ class MemberOrderForm(forms.ModelForm):
             self.fields['cooperative'].initial=self.request.user.cooperative_admin.cooperative
         
         self.fields['member'].queryset = CooperativeMember.objects.none()
-        self.fields['order_date'].widget.attrs.update({
-            'autocomplete': 'off'
-        })
-        
+
         if 'cooperative' in self.data:
             try:
                 cooperative_id = int(self.data.get('cooperative'))
                 self.fields['member'].queryset = CooperativeMember.objects.filter(cooperative=cooperative_id).order_by('first_name')
             except Exception as e: #(ValueError, TypeError):
+                print("ERROR")
                 pass  # invalid input from the client; ignore and fallback to empty City queryset
         elif self.instance.pk:
             if self.instance.cooperative:

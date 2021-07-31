@@ -2,6 +2,7 @@
 {% load static %}
 {% load el_pagination_tags %}
 {% load my_custom_tags %} 
+{% load humanize %}
 {% block style %}
 <style type="text/css">
     .row-pagination{
@@ -88,7 +89,7 @@
                         <th>Role</th>
                         <th>District</th>
                         <th>Sub County</th>
-                        <th>Created By</th>
+                        <th>Balance</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -105,7 +106,7 @@
                                 <td>{{ item.coop_role|default:'' }}</td>
                                 <td>{{ item.district|default:'' }} </td>
                                 <td>{{ item.sub_county|default:'' }} </td>
-                                <td>{{ item.create_by.username}} </td>
+                                <td>{{ item.account.balance|intcomma }} </td>
                                 
                                 <td class="uk-text-center">
                                     <a href="{% url 'coop:member_detail' item.id %}" ><i class="material-icons md-24 uk-text-default"  title="Detail">remove_red_eye</i></a>

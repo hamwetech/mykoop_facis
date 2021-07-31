@@ -25,10 +25,8 @@
                         {% for item in object_list %}
                             <tr>
                                 <td>{{ item }}</td>
-                                
                                 <td>
-                                    <a href="{% url 'product:supplier_update' item.id %}" class="md-btn md-btn-wave waves-effect waves-button uk-float-right">Edit</a>
-                                    <a href="{% url 'product:supplier_user_list' item.id %}" class="md-btn md-btn-wave waves-effect waves-button uk-float-right">Add Users</a>
+                                    <a href="{% url 'product:supplier_user_create' item.supplier.id %}" class="md-btn md-btn-wave waves-effect waves-button uk-float-right">Edit</a>
                                 </td>
                             </tr>
                         {% endfor %}

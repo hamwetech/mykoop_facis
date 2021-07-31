@@ -29,7 +29,7 @@ class ProductVariationPriceForm(forms.ModelForm):
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        fields = ['name']
+        exclude = ['create_date', 'update_date']
 
 
 class ItemForm(forms.ModelForm):
@@ -75,9 +75,23 @@ class SalesCommissionForm(forms.ModelForm):
         model = SalesCommission
         exclude = ['create_date', 'update_date']
 
+
+class ItemAdditionChargesForm(forms.ModelForm):
+    class Meta:
+        model = ItemAdditionalCharges
+        exclude = ['create_date', 'update_date']
+
+
+class ItemCategoryForm(forms.ModelForm):
+    class Meta:
+        model = ItemCategory
+        exclude = ['create_date', 'update_date']
+
        
 bootstrapify(SupplierForm)
 bootstrapify(ItemForm)
+bootstrapify(ItemCategoryForm)
+bootstrapify(ItemAdditionChargesForm)
 bootstrapify(ProductForm)
 bootstrapify(ProductUnitForm)
 bootstrapify(ProductVariationForm)

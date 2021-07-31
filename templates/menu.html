@@ -57,6 +57,12 @@
                         <span class="menu_title">Coop Member</span>
                     </a>
                 </li>
+                <li {% if '__transaction' in active %}class="current_section"{% endif %} title="Transaction">
+                    <a href="{% url 'account:transaction_list' %}">
+                        <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
+                        <span class="menu_title">Transaction</span>
+                    </a>
+                </li>
                 <!--<li {% if '_coop_member' in active %}class="current_section"{% endif %} title="Snippets">-->
                 <!--    <a href="{% url 'coop:member_subscription_list' %}">-->
                 <!--        <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>-->
@@ -88,7 +94,7 @@
                 <hr>
 
                 {% if request.user.profile.is_cooperative or request.user.profile.is_supplier  %}
-                    <li {% if '__Item' in active %}class="current_section"{% endif %} title="Item">
+                    <li {% if '__item' in active %}class="current_section"{% endif %} title="Item">
                         <a href="{% url 'product:item_list' %}">
                             <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
                             <span class="menu_title">Items</span>

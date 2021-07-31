@@ -28,6 +28,7 @@
                         <th>Cooperative</th>
                         <th>Member</th>
                         <th>Item</th>
+                        <th>Quantity</th>
                         <th>Price</th>
                         <th>Status</th>
 
@@ -41,7 +42,8 @@
                                 <td>{{ item.order.order_reference }}</td>
                                 <td>{{ item.order.cooperative }}</td>
                                 <td>{{ item.order.member }}</td>
-                                <td>{{ item.item }}</td>
+                                <td>{{ item.item }}<br><small>{{ item.item.supplier }}</small></td>
+                                <td>{{ item.quantity }}</td>
                                 <td>{{ item.price }}</td>
                                 <td>{% include "status_text.html" with field=item.status %}</td>
 

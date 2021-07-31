@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 
+
 class Product(models.Model):
     name = models.CharField(max_length=25, unique=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -17,8 +18,7 @@ class Product(models.Model):
     
     def product_variation(self):
         return ProductVariation.objects.filter(product=self)
-    
-    
+
     def __unicode__(self):
         return self.name
     
@@ -94,6 +94,15 @@ class ProductVariationPriceLog(models.Model):
 
 class Supplier(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    phone_number = models.CharField(max_length=32, null=True, blank=True)
+    email = models.CharField(max_length=32, null=True, blank=True)
+    contact_person = models.CharField(max_length=32, null=True, blank=True)
+    contact_person_phone_number = models.CharField(max_length=32, null=True, blank=True)
+    logo = models.ImageField(upload_to='supplier/logo/', null=True, blank=True)
+    api_url = models.CharField(max_length=255, blank=True, null=True)
+    username = models.CharField(max_length=255, blank=True, null=True)
+    password = models.CharField(max_length=255, blank=True, null=True)
+    token = models.TextField(blank=True, null=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     
@@ -118,11 +127,27 @@ class SupplierAdmin(models.Model):
         return "%s" % self.user.get_full_name()
 
 
+class ItemCategory(models.Model):
+    category_name = models.CharField(max_length=255, unique=True)
+    category_code = models.CharField(max_length=120, null=True, blank=True, unique=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "item_category"
+
+    def __unicode__(self):
+        return self.category_name
+
+
 class Item(models.Model):
     name = models.CharField(max_length=255)
+    category = models.ForeignKey(ItemCategory, null=True)
     supplier = models.ForeignKey(Supplier, null=True, blank=True, on_delete=models.CASCADE)
+    allow_loan_request = models.BooleanField(default=False)
     supplier_price = models.DecimalField(max_digits=20, decimal_places=2)
-    price = models.DecimalField(max_digits=20, decimal_places=2)
+    price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name=u"Retail Price")
+    created_by = models.ForeignKey(User, null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     
@@ -131,6 +156,22 @@ class Item(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class ItemAdditionalCharges(models.Model):
+    name = models.CharField(max_length=160)
+    charge_type = models.CharField(max_length=36, choices=(('CHARGE', 'CHARGE'), ('DISCOUNT', 'DISCOUNT')))
+    value = models.DecimalField(max_digits=12, decimal_places=2)
+    value_type = models.CharField(max_length=36, choices=(('AMOUNT', 'AMOUNT'), ('PERCENTAGE', 'PERCENTAGE')))
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'item_addition_charges'
+
+    def __unicode__(self):
+        return "{} {}".format(self.value, self.value_type)
+
     
 # @receiver(post_save, sender=ProductVariationPrice)
 # def create_price_log(sender, instance, created, **kwargs):

@@ -19,7 +19,7 @@
                 <span class="sub-heading" id="user_edit_position">
                     Role: <b>{{ object.coop_role|title }}</b> |
                     Quantity Collected: <b>{{ object.collection_quantity|intcomma  }}</b> |
-                    Account Balance: <b>{{ object.balance|intcomma  }}</b>
+                    Account Balance: <b>{{ object.account.balance|intcomma   }}</b>
                 </span>
                 </h2>
             </div>
@@ -160,22 +160,17 @@
                                     </div>
                                     <div class="uk-width-medium-1-4 parsley-row">
                                         <div class="md-list-content">
-                                            <span class="uk-text-muted uk-text-small">Cotton Acreage</span>
+                                            <span class="uk-text-muted uk-text-small">Land Acreage</span>
                                             <div>
-                                                <span class="md-list-heading">{{ object.cotton_acreage }} </span>
+                                                <span class="md-list-heading">{{ object.land_acreage }} </span>
                                             </div>
                                         </div>
-                                        
+                                    </div>
+                                    <div class="uk-width-medium-1-4 parsley-row">
                                         <div class="md-list-content">
-                                            <span class="uk-text-muted uk-text-small">Soya Beans Acreage</span>
+                                            <span class="uk-text-muted uk-text-small">Product</span>
                                             <div>
-                                                <span class="md-list-heading">{{ object.soya_beans_acreage }} </span>
-                                            </div>
-                                        </div>
-                                        <div class="md-list-content">
-                                            <span class="uk-text-muted uk-text-small">Sorghum</span>
-                                            <div>
-                                                <span class="md-list-heading">{{ object.soghum_acreage }} </span>
+                                                <span class="md-list-heading">{{ object.product }} </span>
                                             </div>
                                         </div>
                                     </div>

@@ -12,8 +12,10 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from coop.models import Collection, CooperativeMember
 from coop.forms import CollectionForm, CollectionFilterForm
 from coop.views.member import save_transaction
+from coop.utils import credit_member_account, debit_member_account
 from conf.utils import generate_alpanumeric, genetate_uuid4, log_error, get_message_template as message_template
 from coop.utils import sendMemberSMS
+from credit.utils import check_loan, pay_loan
 
 
 class ExtraContext(object):
@@ -24,6 +26,7 @@ class ExtraContext(object):
         context['active'] = ['_collection']
         context.update(self.extra_context)
         return context
+
 
 class CollectionListView(ExtraContext, ListView):
     model = Collection
@@ -116,7 +119,6 @@ class CollectionDownload(View):
                 mainString = mainString.replace(elem, newString)
         
         return  mainString       
-         
 
     
 class CollectionCreateView(ExtraContext, CreateView):
@@ -139,7 +141,7 @@ class CollectionCreateView(ExtraContext, CreateView):
             params = {'amount': form.instance.total_price,
                       'member': form.instance.member,
                       'transaction_reference': form.instance.collection_reference ,
-                      'transaction_type': 'COLLECTION',
+                      'transaction_category': 'COLLECTION',
                       'entry_type': 'CREDIT'
                       }
             member = CooperativeMember.objects.filter(pk=form.instance.member.id)
@@ -150,7 +152,27 @@ class CollectionCreateView(ExtraContext, CreateView):
                 new_bal = form.instance.quantity + qty_bal
                 member.collection_quantity = new_bal
                 member.save()
-            save_transaction(params)
+                # save_transaction(params)
+                credit_member_account(params)
+
+                loan = check_loan(member)
+                if loan:
+                    ploan = {
+                        "member": form.instance.total_price,
+                        "amount": form.instance.member,
+                        "transaction_type": "LOAN REPAYMENT",
+                        "created_by": "SYSTEM"
+                    }
+
+                    pay_loan(ploan)
+
+                    params = {'amount': form.instance.total_price,
+                              'member': form.instance.member,
+                              'transaction_reference': form.instance.collection_reference,
+                              'transaction_category': 'LOAN REPAYMENT',
+                              'entry_type': 'DEBIT'
+                              }
+                    debit_member_account(params)
             
             try:
                 message = message_template().collection

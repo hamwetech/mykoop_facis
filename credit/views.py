@@ -13,7 +13,7 @@ from credit.utils import create_loan_transaction
 from credit.models import CreditManager, LoanRequest, CreditManagerAdmin, LoanTransaction
 from credit.forms import CreditManagerForm, CreditManagerUserForm
 
-from coop.utils import credit_member_account
+from coop.utils import credit_member_account, debit_member_account
 from coop.models import MemberOrder, CooperativeMember, OrderItem
 from conf.utils import generate_alpanumeric, genetate_uuid4, log_error, log_debug, generate_numeric, float_to_intstring, \
     get_deleted_objects, \
@@ -142,7 +142,26 @@ class ApproveLoan(View):
                     "created_by": request.user,
                 }
                 amt = create_loan_transaction(params)
-                credit_member_account({"member": lq.member, "amount": amt})
+                pl = {
+                    "member": lq.member,
+                    "amount": amt,
+                    "entry_type": "CREDIT",
+                    "transaction_category": "LOAN",
+                    "description": "Loan request approved",
+                    "created_by": request.user,
+                }
+                credit_member_account(pl)
+
+                pld = {
+                    "member": lq.member,
+                    "amount": amt,
+                    "entry_type": "DEBIT",
+                    "transaction_category": "ORDER",
+                    "description": "Order for item %s" % (lq.order_item.item.name),
+                    "created_by": request.user,
+                }
+                debit_member_account(pld)
+
             if status == 'REJECTED':
                 lq.confirm_date = today
             lq.status = status
@@ -156,3 +175,4 @@ class ApproveLoan(View):
 class LoanTransactionListView(ExtraContext, ListView):
     model=LoanTransaction
     extra_context = {'active': ['_credit', '__loan_transaction']}
+    ordering = ('-id')

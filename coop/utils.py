@@ -1,6 +1,8 @@
 from messaging.utils import sendSMS
-from conf.utils import log_debug, log_error
+from account.utils import create_transaction
+from conf.utils import log_debug, log_error, generate_numeric
 from coop.models import Cooperative, CooperativeMember
+
 
 def sendMemberSMS(request, member, message):
     if member.cooperative.send_message:
@@ -26,7 +28,22 @@ def check_coop_url(str):
 def credit_member_account(params):
     member = params.get('member')
     amount = params.get("amount")
-    balance_before = member.balance
+    transaction_category = params.get("transaction_category")
+    balance_before = member.account.balance if member.account else 0
     new_balance = balance_before + amount
-    member.balance = new_balance
-    member.save()
+    params.update({"new_balance": new_balance})
+    member.account.balance = new_balance
+    member.account.save()
+
+    create_transaction(params)
+
+
+def debit_member_account(params):
+    member = params.get('member')
+    amount = params.get("amount")
+    balance_before = member.account.balance if member.account else 0
+    new_balance = balance_before - amount
+    params.update({"new_balance": new_balance})
+    member.account.balance = new_balance
+    member.account.save()
+    create_transaction(params)
