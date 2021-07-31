@@ -12,22 +12,22 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='Account',
-        ),
-        migrations.RemoveField(
-            model_name='transaction',
-            name='created_by',
-        ),
-        migrations.RemoveField(
-            model_name='transaction',
-            name='members',
-        ),
-        migrations.RemoveField(
-            model_name='transaction',
-            name='user',
-        ),
-        migrations.DeleteModel(
-            name='Transaction',
-        ),
+        # migrations.DeleteModel(
+        #     name='Account',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='transaction',
+        #     name='created_by',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='transaction',
+        #     name='members',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='transaction',
+        #     name='user',
+        # ),
+        # migrations.DeleteModel(
+        #     name='Transaction',
+        # ),
     ]
