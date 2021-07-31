@@ -174,8 +174,11 @@ class LoginView(View):
                                     if right_cooperative == "False":
                                         data['errors'] = "Cooperative not identified. Please contact the Admin"
                                 elif user.profile.is_union() or user.profile.is_supplier() or user.profile.is_partner() or user.is_superuser or user.profile.is_credit_manager():
-                                    login(request, user)
-                                    return redirect('dashboard')
+                                    if not coop:
+                                        login(request, user)
+                                        return redirect('dashboard')
+                                    else:
+                                        data['errors'] = "Cooperative Access Denied. Please contact the Admin"
                                 else:
                                     data['errors'] = "Your Cooperative Credentials Failed. Please try again"
                             else:
