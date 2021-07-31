@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='cooperativemember',
-            name='balance',
-            field=models.DecimalField(blank=True, decimal_places=2, default=0, max_digits=10),
-        ),
+        # migrations.AddField(
+        #     model_name='cooperativemember',
+        #     name='balance',
+        #     field=models.DecimalField(blank=True, decimal_places=2, default=0, max_digits=10),
+        # ),
         # migrations.AddField(
         #     model_name='transaction',
         #     name='description',
