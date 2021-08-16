@@ -16,13 +16,19 @@
                             <span class="menu_title">Cooperative</span>
                         </a>
                     </li>
-
-                    <li {% if '_partner' in active %}class="current_section"{% endif %} title="Partner">
-                        <a href="{% url 'partner:list' %}">
-                            <span class="menu_icon"><i class="material-icons">extension</i></span>
-                            <span class="menu_title">Partners</span>
+                <li {% if '_cooperative' in active %}class="current_section"{% endif %} title="Agents">
+                        <a href="{% url 'coop:agent_list' %}">
+                            <span class="menu_icon"><i class="material-icons">account_balance</i></span>
+                            <span class="menu_title">Agent</span>
                         </a>
                     </li>
+
+<!--                    <li {% if '_partner' in active %}class="current_section"{% endif %} title="Partner">-->
+<!--                        <a href="{% url 'partner:list' %}">-->
+<!--                            <span class="menu_icon"><i class="material-icons">extension</i></span>-->
+<!--                            <span class="menu_title">Partners</span>-->
+<!--                        </a>-->
+<!--                    </li>-->
                     <li {% if '__supplier' in active %}class="current_section"{% endif %}  title="Supplier">
                         <a href="{% url 'product:supplier_list' %}">
                             <span class="menu_icon"><i class="material-icons">account_balance</i></span>

@@ -6,6 +6,8 @@ from coop.views.collection import *
 from coop.views.order import *
 
 urlpatterns = [
+
+     url(r'agent/list/$', AgentListView.as_view(), name='agent_list'),
     
      url(r'order/status/(?P<pk>[\w]+)/(?P<status>[\w]+)$', MemberOrderStatusView.as_view(), name='order_status'),
      url(r'order/item/list/$', MemberOrderItemListView.as_view(), name='order_item_list'),

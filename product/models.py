@@ -128,7 +128,8 @@ class SupplierAdmin(models.Model):
 
 
 class ItemCategory(models.Model):
-    category_name = models.CharField(max_length=255, unique=True)
+    parent = models.ForeignKey('self', null=True, blank=True)
+    category_name = models.CharField(max_length=255)
     category_code = models.CharField(max_length=120, null=True, blank=True, unique=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)

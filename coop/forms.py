@@ -583,6 +583,32 @@ class OrderItemForm(forms.ModelForm):
           'quantity': forms.TextInput(attrs={'onkeydown': 'calculatePrice(this)'}),
         }
 
+
+class AgentSearchForm(forms.Form):
+    name = forms.CharField(max_length=150, required=False)
+    phone_number = forms.CharField(max_length=150, required=False)
+    cooperative = forms.ChoiceField(widget=forms.Select(), choices=[], required=False)
+    start_date = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={'class':'some_class', 'id':'uk_dp_1',
+                                                                                               'data-uk-datepicker': "{format:'YYYY-MM-DD'}",
+                                                                                               'autocomplete':"off"}))
+    end_date = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={'class':'some_class', 'id':'uk_dp_1',
+                                                                                               'data-uk-datepicker': "{format:'YYYY-MM-DD'}",
+                                                                                               'autocomplete':"off"}))
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(AgentSearchForm, self).__init__(*args, **kwargs)
+
+        qs = CooperativeMember.objects.values('cooperative__id', 'cooperative__name').distinct()
+
+        choices = [['', 'Cooperative']]
+        for q in qs:
+            choices.append([q['cooperative__id'], q['cooperative__name']])
+
+        self.fields['cooperative'].choices = choices
+
+
+bootstrapify(AgentSearchForm)
 bootstrapify(MemberOrderForm)
 bootstrapify(OrderItemForm)
 bootstrapify(CooperativeForm)

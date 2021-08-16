@@ -4,13 +4,16 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.db.models import Sum
 from django.views.generic import TemplateView
-from django.db.models import Q, CharField, Max, Value as V
+from django.db.models import Q, CharField, Max, Sum, Count, Value as V
 from django.db.models.functions import Concat
 from coop.models import *
 from activity.models import *
 from payment.models import *
-from product.models import ProductVariationPrice
+from credit.models import *
+from userprofile.models import Profile
+from product.models import ProductVariationPrice, Supplier
 from messaging.models import OutgoingMessages
+
 
 class DashboardView(TemplateView):
     template_name = "dashboard.html"
@@ -19,6 +22,13 @@ class DashboardView(TemplateView):
         context = super(DashboardView, self).get_context_data(**kwargs)
         cooperatives = Cooperative.objects.all()
         members = CooperativeMember.objects.all()
+        suppliers = Supplier.objects.all()
+        orders = MemberOrder.objects.all()
+        loans = LoanRequest.objects.all()
+        sum_loans = loans.filter(status='APPROVED').aggregate(sum=Sum('requested_amount'))
+        agents = Profile.objects.filter(access_level__name='AGENT')
+        district_summary = members.values('district__name').annotate(dc=Count('id'))
+
         cooperative_contribution = CooperativeContribution.objects.all().order_by('-update_date')[:5]
         cooperative_shares = CooperativeShareTransaction.objects.all().order_by('-update_date')
         product_price = ProductVariationPrice.objects.all().order_by('-update_date')
@@ -59,7 +69,14 @@ class DashboardView(TemplateView):
                                    ).annotate(total_amount=Sum('amount_paid'), total_shares=Sum('shares_bought'), transaction_date=Max('transaction_date')).order_by('-transaction_date')
         
         context['cooperatives'] = cooperatives.count()
-        
+        context['suppliers'] = suppliers.count()
+        context['orders'] = orders.count()
+        context['loans'] = loans.count()
+        context['agents'] = agents.count()
+        context['sum_loans'] = sum_loans
+        context['coop_summary'] = cooperatives
+        context['district_summary'] = district_summary
+
         context['shares'] = shares['total_amount']
         context['transactions'] = Cooperative.objects.all().count()
         context['members'] = members.count()

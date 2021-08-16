@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 import qrcode
 import StringIO
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db.models import F, Sum
 from django.dispatch import receiver
@@ -48,9 +49,35 @@ class Cooperative(models.Model):
         
     def __unicode__(self):
         return self.name
-        
+
+    def agents_count(self):
+        agent = CooperativeAdmin.objects.filter(cooperative=self)
+        return agent.count()
+
     def member_count(self):
         members = CooperativeMember.objects.filter(cooperative=self)
+        return members.count()
+
+    def male_count(self):
+        members = CooperativeMember.objects.filter(cooperative=self, gender="Male")
+        return members.count()
+
+    def female_count(self):
+        members = CooperativeMember.objects.filter(cooperative=self, gender="Female")
+        return members.count()
+
+    def refugee_count(self):
+        members = CooperativeMember.objects.filter(cooperative=self, is_refugee=True)
+        return members.count()
+
+    def handicup_count(self):
+        members = CooperativeMember.objects.filter(cooperative=self, is_handicap=True)
+        return members.count()
+
+    def youth_count(self):
+        low = datetime.today() - relativedelta(years = 15)
+        high = datetime.today() - relativedelta(years = 35)
+        members = CooperativeMember.objects.filter(cooperative=self, date_of_birth__lte=low, date_of_birth__gte=high)
         return members.count()
     
 

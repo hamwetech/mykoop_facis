@@ -8,14 +8,15 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.utils.encoding import smart_str
 from django.db import transaction
+from django.db.models import Count
 from django.views.generic import View, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from conf.utils import log_debug, log_error, get_deleted_objects, get_consontant_upper
 from conf.models import District, County, SubCounty
 from coop.models import Cooperative, CooperativeContribution, CooperativeShareTransaction, \
-AnimalIdentification, TickControl, CooperativeSharePrice, CommonDisease
+AnimalIdentification, TickControl, CooperativeSharePrice, CommonDisease, CooperativeMember
 from coop.forms import CooperativeForm, CooperativeContributionForm, CooperativeShareTransactionForm, AnimalIdentificationForm,\
-CooperativeSharePriceForm, CooperativeUploadForm, CommonDiseasesForm
+CooperativeSharePriceForm, CooperativeUploadForm, CommonDiseasesForm, AgentSearchForm
 
 class ExtraContext(object):
     extra_context = {}
@@ -342,3 +343,15 @@ class CooperateCommonDiseaseUpdateView(UpdateView):
     
 class CooperateCommonDiseaseListView(ListView):
     model = CommonDisease
+
+
+class AgentListView(ListView):
+    template_name = 'coop/agents_list.html'
+
+    def get(self, request, **kwargs):
+        agent_sum = CooperativeMember.objects.values('create_by').annotate(cnt=Count('id'))
+        data = {
+            'agent_summary': agent_sum,
+            'form': AgentSearchForm
+        }
+        return render(request, self.template_name, data)

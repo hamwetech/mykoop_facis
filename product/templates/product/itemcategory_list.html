@@ -19,6 +19,7 @@
                     <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Parent</th>
                         <th>Code</th>
                         <th></th>
                     </tr>
@@ -27,6 +28,7 @@
                         {% for item in object_list %}
                             <tr>
                                 <td>{{ item.category_name }}</td>
+                                <td>{{ item.parent }}</td>
                                 <td>{{ item.category_code }}</td>
                                 
                                 <td>

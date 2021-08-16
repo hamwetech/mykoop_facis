@@ -165,7 +165,8 @@ class PaymentModeUpdateView(ExtraContext, UpdateView):
     form_class = PaymentMethodForm
     extra_context = {'active': ['_config', '__payment_method']}
     success_url = reverse_lazy('conf:payment_list')
-    
+
+
 class LocationUploadView(ExtraContext, View):
 
     # @method_decorator(is_authorized(all=['system.add_location']))

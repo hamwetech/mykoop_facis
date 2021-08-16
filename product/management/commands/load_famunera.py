@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from conf.utils import get_consontant_upper, log_debug, log_error
-from product.models import Supplier
-
+from product.models import Supplier, ItemCategory, Item
+from django.db import transaction
 from product.api.fanumera import FamuneraAPI
 
 
@@ -20,21 +20,52 @@ class Command(BaseCommand):
         fapi = FamuneraAPI({"token": token})
         response = fapi.get_categories()
         arr = []
-        for res in response.get("data").get('categories'):
-            arr.append({"parent": None, "ID": res.get("ID"), "name": res.get("name")})
-            if res.get("sub_categories"):
-                for sub1 in res.get("sub_categories"):
-                    arr.append({"parent": res.get("ID"), "ID": sub1.get("ID"), "name": sub1.get("name")})
-                    if sub1.get("sub_categories"):
-                        for sub2 in sub1.get("sub_categories"):
-                            arr.append({"parent": sub1.get("ID"), "ID": sub2.get("ID"), "name": sub2.get("name")})
-                            if sub2.get("sub_categories"):
-                                for sub3 in sub2.get("sub_categories"):
-                                    arr.append({"parent": sub2.get("ID"), "ID": sub3.get("ID"), "name": sub3.get("name")})
+        try:
+            with transaction.atomic():
+                for res in response.get("data").get('categories'):
+                    arr.append({"parent": None, "ID": res.get("ID"), "name": res.get("name")})
+                    self.create_category({"parent": None, "ID": res.get("ID"), "name": res.get("name")})
+                    if res.get("sub_categories"):
+                        for sub1 in res.get("sub_categories"):
+                            arr.append({"parent": res.get("ID"), "ID": sub1.get("ID"), "name": sub1.get("name")})
+                            self.create_category({"parent": res.get("ID"), "ID": sub1.get("ID"), "name": sub1.get("name")})
+                            if sub1.get("sub_categories"):
+                                for sub2 in sub1.get("sub_categories"):
+                                    arr.append({"parent": sub1.get("ID"), "ID": sub2.get("ID"), "name": sub2.get("name")})
+                                    self.create_category(
+                                        {"parent": sub1.get("ID"), "ID": sub2.get("ID"), "name": sub2.get("name")})
+                                    if sub2.get("sub_categories"):
+                                        for sub3 in sub2.get("sub_categories"):
+                                            arr.append({"parent": sub2.get("ID"), "ID": sub3.get("ID"), "name": sub3.get("name")})
+                                            self.create_category(
+                                                {"parent": sub2.get("ID"), "ID": sub3.get("ID"), "name": sub3.get("name")})
+        except Exception as e:
+            print("Error %s" % e)
 
-        # self.func1(response.get("data").get('categories'))
-        print(arr)
+    def create_category(self, params):
+        print("Data %s" % params)
+        parent_id = params.get('parent')
+        name = params.get('name')
+        id = params.get('ID')
+        parent = None
 
+        if parent_id:
+            parent = ItemCategory.objects.filter(category_code=parent_id)
+            if parent.count() > 0:
+                parent = parent[0]
+
+        item = ItemCategory.objects.filter(category_code=id)
+        if item.exists():
+            print("Parent update %s" % parent)
+            item.update(category_code=id, category_name=name)
+            if parent:
+                item.update(parent=parent)
+        else:
+            it = ItemCategory.objects.create(category_code=id, category_name=name)
+            if parent:
+                print("Parent %s" % parent)
+                it.parent=parent
+                it.save()
 
     def dict_generator(self, indict, pre=None):
         pre = pre[:] if pre else []
