@@ -5,7 +5,7 @@ import StringIO
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 from django.db import models
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Q
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
@@ -15,6 +15,7 @@ from account.models import Account
 from conf.models import District, County, SubCounty, Village, Parish, PaymentMethod
 from product.models import Product, ProductVariation, ProductUnit, Item
 # from partner.models import PartnerTrainingModule
+from userprofile.models import Profile
 
 
 class Cooperative(models.Model):
@@ -802,3 +803,18 @@ class OrderItem(models.Model):
 #     account_number = models.CharField(max_length=255, unique=True)
 #     balance = models.DecimalField(max_digits=12, decimal_places=2)
 #
+
+class ProfileManager(models.Manager):
+    def get_queryset(self):
+        return super(ProfileManager, self).get_queryset().filter(Q(access_level__name ='COOPERATIVE')|Q(access_level__name ='AGENT')|Q(access_level__name ='UNION'))
+
+
+class Agent(Profile):
+    objects = ProfileManager()
+
+    class Meta:
+        proxy = True
+
+    def members(self):
+        members = CooperativeMember.objects.filter(create_by=self.user)
+        return members.count()

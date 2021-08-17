@@ -16,9 +16,9 @@
                             <span class="menu_title">Cooperative</span>
                         </a>
                     </li>
-                <li {% if '_cooperative' in active %}class="current_section"{% endif %} title="Agents">
+                <li {% if '_agent' in active %}class="current_section"{% endif %} title="Agents">
                         <a href="{% url 'coop:agent_list' %}">
-                            <span class="menu_icon"><i class="material-icons">account_balance</i></span>
+                            <span class="menu_icon"><i class="material-icons">assignment_id</i></span>
                             <span class="menu_title">Agent</span>
                         </a>
                     </li>
@@ -31,20 +31,20 @@
 <!--                    </li>-->
                     <li {% if '__supplier' in active %}class="current_section"{% endif %}  title="Supplier">
                         <a href="{% url 'product:supplier_list' %}">
-                            <span class="menu_icon"><i class="material-icons">account_balance</i></span>
+                            <span class="menu_icon"><i class="material-icons">storefront</i></span>
                             <span class="menu_title">Suppliers</span>
                         </a>
                     </li>
                 <li {% if '__cm' in active %}class="current_section"{% endif %}  title="CM">
                         <a href="{% url 'credit:cm_list' %}">
-                            <span class="menu_icon"><i class="material-icons">account_balance</i></span>
+                            <span class="menu_icon"><i class="material-icons">credit_card</i></span>
                             <span class="menu_title">Credit Managers</span>
                         </a>
                     </li>
                     <hr>
                     <li {% if '_coop_shares' in active %}class="current_section"{% endif %} title="Coop Shares">
                         <a href="{% url 'coop:share_list' %}">
-                            <span class="menu_icon"><i class="material-icons">&#xE0B9;</i></span>
+                            <span class="menu_icon"><i class="material-icons">toll</i></span>
                             <span class="menu_title">Cooperative Shares</span>
                         </a>
                     </li>

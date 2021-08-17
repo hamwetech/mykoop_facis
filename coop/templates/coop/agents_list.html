@@ -25,7 +25,8 @@
                 </div>
                 <div class="uk-width-medium-1-5 uk-float-right">
                     <button class="md-btn" > Search </button>
-                    <a href="." class="md-btn md-btn-small md-btn-flat md-btn-flat-primary uk-float-right uk-margin-small-left"><i class="material-icons md-24 " title="Delete">refresh</i></a>
+                    <a href="." class="md-btn md-btn-small md-btn-flat uk-float-right uk-margin-small-left">
+                        <i class="material-icons md-24 " title="Delete">refresh</i></a>
                 </div>
              </div>
             </form>
@@ -36,7 +37,7 @@
                         <th>Agent</th>
                         <th>Phone Number</th>
                         <th>Registered</th>
-                        <th>UNION</th>
+                        <th>Cooperative</th>
                         <th>Access Level</th>
                        <th></th>
                     </tr>
@@ -44,11 +45,11 @@
                     <tbody>
                         {% for item in agent_summary %}
                             <tr>
-                                <td>{{ item.created_by.first_name }} {{ item.created_by.last_name }}</td>
-                                <td>{{ item.msisdn }}</td>
-                                <td>{{ item.members }}</td>
-                                <td>{{ item.union }}</td>
-                                <td>{{ item.access_level.name }}</td>
+                                <td>{{ item.create_by__first_name }} {{ item.create_by__last_name }}</td>
+                                <td>{{ item.create_by__profile__msisdn }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.create_by__cooperative_admin__cooperative__name }}</td>
+                                <td>{{ item.create_by__profile__access_level__name }}</td>
                                 <td>
                                 </td>
                             </tr>

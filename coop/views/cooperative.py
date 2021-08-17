@@ -8,13 +8,13 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.utils.encoding import smart_str
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.views.generic import View, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from conf.utils import log_debug, log_error, get_deleted_objects, get_consontant_upper
 from conf.models import District, County, SubCounty
 from coop.models import Cooperative, CooperativeContribution, CooperativeShareTransaction, \
-AnimalIdentification, TickControl, CooperativeSharePrice, CommonDisease, CooperativeMember
+AnimalIdentification, TickControl, CooperativeSharePrice, CommonDisease, CooperativeMember, Agent
 from coop.forms import CooperativeForm, CooperativeContributionForm, CooperativeShareTransactionForm, AnimalIdentificationForm,\
 CooperativeSharePriceForm, CooperativeUploadForm, CommonDiseasesForm, AgentSearchForm
 
@@ -349,9 +349,33 @@ class AgentListView(ListView):
     template_name = 'coop/agents_list.html'
 
     def get(self, request, **kwargs):
-        agent_sum = CooperativeMember.objects.values('create_by').annotate(cnt=Count('id'))
+        # queryset = Agent.objects.all()
+        queryset = CooperativeMember.objects.values('create_by__first_name', 'create_by__last_name', 'create_by__profile__msisdn',
+                                                    'create_by__cooperative_admin__cooperative__name', 'create_by__profile__access_level__name').annotate(count=Count('id'))
+        name = self.request.GET.get('name')
+        phone_number = self.request.GET.get('phone_number')
+        cooperative = self.request.GET.get('cooperative')
+        end_date = self.request.GET.get('end_date')
+        start_date = self.request.GET.get('start_date')
+
+        if phone_number:
+            queryset = queryset.filter(create_by__phone_number=phone_number)
+
+        if name:
+            queryset = queryset.filter(Q(create_by__first_name__icontains=name) | Q(create_by__last_name__icontains=name))
+
+        if cooperative:
+            queryset = queryset.filter(cooperative_id=cooperative)
+
+        if start_date:
+            queryset = queryset.members(create_date=start_date)
+
+        if end_date:
+            queryset = queryset.members(create_date=end_date)
+
         data = {
-            'agent_summary': agent_sum,
-            'form': AgentSearchForm
+            'agent_summary': queryset,
+            'form': AgentSearchForm(request.GET),
+            'active': ['_agent']
         }
         return render(request, self.template_name, data)
