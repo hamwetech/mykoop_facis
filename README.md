@@ -1,6 +1,6 @@
 # FTF
 
-FTF API (A MyKoop variant)
+FACIS API (A MyKoop variant)
 
 ## Developer guide
 

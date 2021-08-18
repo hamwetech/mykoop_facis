@@ -11,7 +11,8 @@ from activity.models import *
 from payment.models import *
 from credit.models import *
 from userprofile.models import Profile
-from product.models import ProductVariationPrice, Supplier
+from product.models import ProductVariationPrice
+from stock.models import Supplier
 from messaging.models import OutgoingMessages
 
 

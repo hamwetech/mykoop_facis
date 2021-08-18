@@ -101,8 +101,7 @@ class TrainingSession(models.Model):
             time2 = datetime.datetime.strptime(end[:19],'%Y-%m-%d %H:%M:%S')
             difference = time2-time1
             return difference
-    
-    
+
  
 class Visit(models.Model):
     coop_member = models.ForeignKey(CooperativeMember, on_delete=models.CASCADE)
@@ -119,3 +118,44 @@ class Visit(models.Model):
         
     def __unicode__(self):
         return "%s" % self.coop_member
+
+
+class TestItem(models.Model):
+    item = models.CharField(max_length=255)
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'test_item'
+
+    def __unicode__(self):
+        return "{}".format(self.item)
+
+class SoilTest(models.Model):
+    coop_member = models.ForeignKey(CooperativeMember, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    sampling_date = models.DateTimeField()
+    coordinates = models.CharField(max_length=255, null=True, blank=True)
+    recommendation = models.TextField(null=True, blank=True)
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'soil_test'
+
+
+class SoilTestSample(models.Model):
+    sample_number = models.CharField(max_length=120)
+    soil_test = models.ForeignKey(SoilTest, on_delete=models.CASCADE)
+    test_item = models.ForeignKey(TestItem, on_delete=models.CASCADE)
+    measure = models.DecimalField(max_digits=12, decimal_places=2)
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'soil_test_sample'
+
+

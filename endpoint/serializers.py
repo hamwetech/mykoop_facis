@@ -8,7 +8,8 @@ from conf.models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from userprofile.models import Profile, AccessLevel
-from product.models import ProductVariation, Supplier
+from product.models import ProductVariation
+from stock.models import Supplier
 from conf.utils import internationalize_number, log_debug, log_error
 from activity.models import ThematicArea, TrainingSession, TrainingModule
 

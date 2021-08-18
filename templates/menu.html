@@ -30,7 +30,7 @@
 <!--                        </a>-->
 <!--                    </li>-->
                     <li {% if '__supplier' in active %}class="current_section"{% endif %}  title="Supplier">
-                        <a href="{% url 'product:supplier_list' %}">
+                        <a href="{% url 'stock:supplier_list' %}">
                             <span class="menu_icon"><i class="material-icons">storefront</i></span>
                             <span class="menu_title">Suppliers</span>
                         </a>
@@ -60,7 +60,7 @@
                 <li {% if '_coop_member' in active %}class="current_section"{% endif %} title="Coop Member">
                     <a href="{% url 'coop:member_list' %}">
                         <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
-                        <span class="menu_title">Coop Member</span>
+                        <span class="menu_title">Farmer</span>
                     </a>
                 </li>
                 <li {% if '__transaction' in active %}class="current_section"{% endif %} title="Transaction">
@@ -101,23 +101,32 @@
 
                 {% if request.user.profile.is_cooperative or request.user.profile.is_supplier  %}
                     <li {% if '__item' in active %}class="current_section"{% endif %} title="Item">
-                        <a href="{% url 'product:item_list' %}">
+                        <a href="{% url 'stock:item_list' %}">
                             <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
                             <span class="menu_title">Items</span>
                         </a>
                     </li>
                 {% endif %}
                 {% if request.user.profile.is_cooperative  %}
+                    <li {% if '_inventory' in active %}class="current_section"{% endif %} title="Supply Request">
+                        <a href="{% url 'stock:inventory_list' %}">
+                            <span class="menu_icon"><i class="material-icons">list_alt</i></span>
+                            <span class="menu_title">Inventory</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if request.user.profile.is_cooperative  %}
                     <li {% if '_order' in active %}class="current_section"{% endif %} title="Supply Request">
                         <a href="{% url 'coop:order_list' %}">
-                            <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
+                            <span class="menu_icon"><i class="material-icons">shopping_cart</i></span>
                             <span class="menu_title">Order</span>
                         </a>
                     </li>
                 {% endif %}
                 {% if request.user.profile.is_supplier %}
                     <li {% if '_order' in active %}class="current_section"{% endif %} title="Supply Request">
-                        <a href="{% url 'coop:order_item_list' %}">
+                        <a href="{% url 'stock:order_item_list' %}">
                             <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
                             <span class="menu_title">Order</span>
                         </a>
@@ -154,9 +163,22 @@
                     </li>
                 {% endif %}-->
                 {% if request.user.profile.is_union or request.user.profile.is_cooperative or request.user.profile.is_partner %}
+                   <li {% if '_test' in active %}class="current_section"{% endif %} title="Training">
+                        <a href="{% url 'op:purchase_list' %}">
+                            <span class="menu_icon"><i class="material-icons">landscape</i></span>
+                            <span class="menu_title">Test </span>
+                        </a>
+                        <ul>
+                            <li {% if '__items' in active %}class="act_item"{% endif %}><a href="{% url 'activity:test_item_list' %}">Test Items</a></li>
+                            <li {% if '__soil_test' in active %}class="act_item"{% endif %}><a href="{% url 'activity:soil_test_list' %}">Soil Test</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+                <hr>
+                {% if request.user.profile.is_union or request.user.profile.is_cooperative or request.user.profile.is_partner %}
                    <li {% if '_training' in active %}class="current_section"{% endif %} title="Training">
                         <a href="{% url 'op:purchase_list' %}">
-                            <span class="menu_icon"><i class="material-icons">mail</i></span>
+                            <span class="menu_icon"><i class="material-icons">cast_for_education</i></span>
                             <span class="menu_title">Training</span>
                         </a>
                         <ul>
@@ -204,15 +226,13 @@
                     <li {% if '_union_prod' in active %}class="current_section"{% endif %}>
                         <a href="#">
                             <span class="menu_icon"><i class="material-icons">settings_input_component</i></span>
-                            <span class="menu_title">Union Product</span>
+                            <span class="menu_title">Farmer Product</span>
                         </a>
                         <ul>
                             <li {% if '__unit' in active %}class="act_item"{% endif %}><a href="{% url 'product:unit_list' %}">Unit</a></li>
                             <li {% if '__product' in active %}class="act_item"{% endif %}><a href="{% url 'product:variation_list' %}">Product</a></li>
                             <li {% if '__price' in active %}class="act_item"{% endif %}><a href="{% url 'product:price_list' %}">Product Price</a></li>
                             <hr>
-<!--                            <li {% if '__supplier' in active %}class="act_item"{% endif %}><a href="{% url 'product:supplier_list' %}">Supplier</a></li>-->
-<!--                            <li {% if '__Item' in active %}class="act_item"{% endif %}><a href="{% url 'product:item_list' %}">Supplier Items</a></li>-->
                        </ul>
                     </li>
                  {% endif %}
@@ -236,7 +256,7 @@
                         <span class="menu_title">System Configuration</span>
                     </a>
                     <ul>
-                        <li  {% if '__commission' in active %}class="act_item"{% endif %}><a href="{% url 'product:commission_list' %}">Commissions</a></li>
+                        <li  {% if '__commission' in active %}class="act_item"{% endif %}><a href="{% url 'stock:commission_list' %}">Commissions</a></li>
                         <li  {% if '__message' in active %}class="act_item"{% endif %}><a href="{% url 'conf:sms_template' %}">SMS Templates</a></li>
                         <li  {% if '__district' in active %}class="act_item"{% endif %}><a href="{% url 'conf:district_list' %}">District</a></li>
                         <li  {% if '__county' in active %}class="act_item"{% endif %}><a href="{% url 'conf:county_list' %}">County</a></li>

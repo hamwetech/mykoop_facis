@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load material_form %}
+
+{% block page_content %}
+<h3 class="heading_b uk-margin-bottom">Inventory Form</h3>
+   <div class="md-card">
+        <div class="md-card-content">
+            <form method="POST" class="new-event-form" role="role">
+                {% csrf_token %}
+                {% include "error_template.html" with form=form %}
+
+                {% for field in form %}
+                    {% include "form/field.html" with field=field input_group_add_on='<i class="uk-input-group-icon uk-icon-key"></i>' %}
+                {% endfor %}
+
+                <div class="uk-grid">
+                    <div class="uk-width-1-1">
+                        <button type="submit" class="md-btn md-btn-success">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block page_specific_scripts %}
+ <!-- page specific plugins -->
+    <!-- ionrangeslider -->
+    <script src="{% static 'bower_components/ion.rangeslider/js/ion.rangeSlider.min.js' %}"></script>
+
+  <!-- inputmask-->
+    <script src="{% static 'bower_components/jquery.inputmask/dist/jquery.inputmask.bundle.js' %}"></script>
+    <!--  forms advanced functions -->
+    <script src="{% static 'assets/js/pages/forms_advanced.min.js' %}"></script>
+
+    <!--  dropify -->
+    <script src="{% static 'assets/js/custom/dropify/dist/js/dropify.min.js' %}"></script>
+
+    <!--  form file input functions -->
+    <script src="{% static 'assets/js/pages/forms_file_input.min.js' %}"></script>
+
+    <!-- kendo UI -->
+    <script src="{% static 'assets/js/kendoui_custom.min.js' %}"></script>
+
+    <!--  kendoui functions -->
+    <script src="{% static 'assets/js/pages/kendoui.min.js' %}"></script>
+     <script src="{% static 'bower_components/jquery.formset.js' %}"></script>
+    <script>
+
+        UIkit.datepicker("#id_manufacture_date", {maxDate:get_current_date(), format:'YYYY-MM-DD' });
+        UIkit.datepicker("#id_expiry_date", {format:'YYYY-MM-DD' });
+        UIkit.datepicker("#id_received_date", {maxDate:get_current_date(), format:'YYYY-MM-DD' });
+        function get_current_date(){
+            var fullDate = new Date()
+            console.log(fullDate);
+            //Thu May 19 2011 17:25:38 GMT+1000 {}
+
+            //convert month to 2 digits
+            var twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : (fullDate.getMonth()+1);
+
+            var currentDate = fullDate.getFullYear() + "-" + twoDigitMonth + "-" + (fullDate.getDate()+1);
+            console.log(currentDate);
+            return currentDate;
+         }
+
+         $("#id_total_price").addClass( " label-fixed " );
+         $('#id_unit_price, #id_quantity').on('change keyup', function(){
+            total_price()
+         })
+
+         function total_price(){
+            var price = $('#id_unit_price').val()
+            var quantity = $('#id_quantity').val()
+            var total_price = price * quantity
+            console.log('sdsd' + total_price)
+            $('#id_total_price').val(total_price)
+         }
+
+
+    </script>
+
+{% endblock %}

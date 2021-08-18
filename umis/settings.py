@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'activity',
     'payment',
     'credit',
-    'account'
+    'account',
+    'stock',
 ]
 
 MIDDLEWARE = [

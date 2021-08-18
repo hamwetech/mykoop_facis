@@ -73,11 +73,12 @@ class MemberCreateView(ExtraContext, CreateView):
     
     def form_valid(self, form):
         try:
-            form.instance.member_id = self.generate_member_id(form.instance.cooperative)
+            form.instance.member_id = self.generate_member_id(form.instance)
             form.instance.create_by = self.request.user
             member = super(MemberCreateView, self).form_valid(form)
         except Exception as e:
-            form.add_error(None, 'The Phone Number %s exists. Please provide another.' % form.instance.phone_number)
+            form.add_error(None,  e)
+            # form.add_error(None, 'The Phone Number %s exists. Please provide another.' % form.instance.phone_number)
             return super(MemberCreateView, self).form_invalid(form)
         try:
             
@@ -94,29 +95,24 @@ class MemberCreateView(ExtraContext, CreateView):
             pass
         return member
     
-    def generate_member_id(self, cooperative):
-        member = CooperativeMember.objects.all()
-        count = member.count() + 1
-        
+    def generate_member_id(self, instance):
         today = datetime.today()
         datem = today.year
         yr = str(datem)[2:]
-        # idno = generate_numeric(size=4, prefix=str(m.cooperative.code)+yr)
-        # fint = "%04d"%count
-        # idno = str(cooperative.code)+yr+fint
-        # member = member.filter(member_id=idno)
-        idno = self.check_id(member, cooperative, count, yr)
-        log_debug("Cooperative %s code is %s" % (cooperative.code, idno))
+        m = datetime.today().strftime("%m")
+        member = CooperativeMember.objects.all()
+        count = member.count() + 1
+        fint = "%04d"%count
+        idno = "F{}{}{}{}".format(instance.gender[:1],yr,m,fint)
+        idno = self.check_id(idno, member)
+        log_debug("ID %s " % (idno))
         return idno
     
-    def check_id(self, member, cooperative, count, yr):
-        fint = "%04d"%count
-        idno = str(cooperative.code)+yr+fint
+    def check_id(self, idno, member):
         member = member.filter(member_id=idno)
         if member.exists():
             count = count + 1
-            #print "iteration count %s" % count
-            return self.check_id(member, cooperative, count, yr)
+            return self.check_id(idno)
         return idno
 
 

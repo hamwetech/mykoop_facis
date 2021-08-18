@@ -13,7 +13,8 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from account.models import Account
 from conf.models import District, County, SubCounty, Village, Parish, PaymentMethod
-from product.models import Product, ProductVariation, ProductUnit, Item
+from product.models import Product, ProductVariation, ProductUnit
+from stock.models import Item
 # from partner.models import PartnerTrainingModule
 from userprofile.models import Profile
 
@@ -227,7 +228,7 @@ class CooperativeMember(models.Model):
         ('Prof', 'Prof'),
         ('Hon', 'Hon'),
     )
-    cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE)
+    cooperative = models.ForeignKey(Cooperative,  null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ImageField(upload_to='member/', null=True, blank=True)
     member_id = models.CharField(max_length=150, unique=True, null=True, blank=True)
     title = models.CharField(max_length=25, choices=title, null=True, blank=True)

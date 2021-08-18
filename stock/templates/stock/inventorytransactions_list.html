@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load material_form %}
+{% load humanize %}
+
+{% block page_content %}
+    <div class="uk-grid" data-uk-grid-margin>
+        <div class="uk-width-medium-1-2">
+            <h2 class="heading_a uk-margin-bottom">Inventory List</h2>
+        </div>
+        <div class="uk-width-medium-1-2">
+
+            <a href="{% url 'stock:inventory_create' %}" class="md-btn md-btn-success uk-float-right">Add Inventory</a>
+        </div>
+    </div>
+    <div class="md-card uk-margin-medium-bottom">
+        <div class="md-card-content">
+            <div class="uk-overflow-container">
+                <table class="uk-table uk-table-striped">
+                    <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in object_list %}
+                            <tr>
+                                <td>{{ item.item.name }}</td>
+                                <td>{{ item.unit_price|intcomma }}</td>
+                                <td>{{ item.quantity|intcomma  }}</td>
+                                <td>{{ item.total_price|intcomma  }}</td>
+                                <td>{{ item.create_date }}</td>
+
+                                <td>
+                                    <a href="{% url 'stock:inventory_update' item.id %}" class="md-btn md-btn-wave waves-effect waves-button uk-float-right">Edit</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
