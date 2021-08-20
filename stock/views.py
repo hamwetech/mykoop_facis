@@ -53,7 +53,7 @@ class SupplierListView(ExtraContext, ListView):
 class SupplierUserCreateView(CreateView):
     model = User
     form_class = SupplierUserForm
-    template_name = "product/supplier_user_form.html"
+    template_name = "stock/supplier_user_form.html"
     extra_context = {'active': ['__supplier']}
     success_url = reverse_lazy('stock:supplier_list')
 

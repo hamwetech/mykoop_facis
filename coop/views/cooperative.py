@@ -5,18 +5,21 @@ import re
 import xlrd
 import datetime
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from django.utils.encoding import smart_str
 from django.db import transaction
 from django.db.models import Count, Q
-from django.views.generic import View, ListView
+from django.views.generic import View, ListView, FormView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from conf.utils import log_debug, log_error, get_deleted_objects, get_consontant_upper
 from conf.models import District, County, SubCounty
 from coop.models import Cooperative, CooperativeContribution, CooperativeShareTransaction, \
 AnimalIdentification, TickControl, CooperativeSharePrice, CommonDisease, CooperativeMember, Agent
 from coop.forms import CooperativeForm, CooperativeContributionForm, CooperativeShareTransactionForm, AnimalIdentificationForm,\
-CooperativeSharePriceForm, CooperativeUploadForm, CommonDiseasesForm, AgentSearchForm
+CooperativeSharePriceForm, CooperativeUploadForm, CommonDiseasesForm, AgentSearchForm, AgentFormView, AgentProfileForm
+from userprofile.models import AccessLevel
+
 
 class ExtraContext(object):
     extra_context = {}
@@ -349,9 +352,9 @@ class AgentListView(ListView):
     template_name = 'coop/agents_list.html'
 
     def get(self, request, **kwargs):
-        # queryset = Agent.objects.all()
-        queryset = CooperativeMember.objects.values('create_by__first_name', 'create_by__last_name', 'create_by__profile__msisdn',
-                                                    'create_by__cooperative_admin__cooperative__name', 'create_by__profile__access_level__name').annotate(count=Count('id'))
+        queryset = Agent.objects.all()
+        # queryset = CooperativeMember.objects.values('create_by__first_name', 'create_by__last_name', 'create_by__profile__msisdn',
+        #                                             'create_by__cooperative_admin__cooperative__name', 'create_by__profile__access_level__name').annotate(count=Count('id'))
         name = self.request.GET.get('name')
         phone_number = self.request.GET.get('phone_number')
         cooperative = self.request.GET.get('cooperative')
@@ -379,3 +382,48 @@ class AgentListView(ListView):
             'active': ['_agent']
         }
         return render(request, self.template_name, data)
+
+
+class AgentCreateView(ExtraContext, FormView):
+    template_name = "coop/agent_form.html"
+    form_class = AgentFormView
+    extra_context = {'active': ['_agent']}
+    success_url = reverse_lazy('coop:agent_list')
+
+    def form_valid(self, form):
+        instance = None
+        try:
+            while transaction.atomic():
+                self.object = form.save(commit=False)
+                if not instance:
+                    self.object.set_password(form.cleaned_data.get('password'))
+                self.object.save()
+                profile = self.object.profile
+
+                profile.msisdn = form.cleaned_data.get('msisdn')
+                aq = AccessLevel.objects.filter(name='AGENT')
+                if aq.exists():
+                    access_level = aq[0]
+                profile.access_level = access_level
+                profile.save()
+        except Exception as e:
+            print("ERROR %s " % e)
+        return super(AgentCreateView, self).form_valid(form)
+        # return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        return super(AgentCreateView, self).form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(AgentCreateView, self).get_context_data(**kwargs)
+        return context
+
+    def get_initial(self):
+        initial = super(AgentCreateView, self).get_initial()
+        initial['instance'] = None
+        return initial
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(AgentCreateView, self).get_form_kwargs(*args, **kwargs)
+        kwargs['instance'] = None
+        return kwargs

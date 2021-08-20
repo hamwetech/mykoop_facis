@@ -189,9 +189,7 @@ class MemberUploadExcel(ExtraContext, View):
             date_of_birth_col = int(form.cleaned_data['date_of_birth_col'])
             phone_number_col = int(form.cleaned_data['phone_number_col'])
             role_col = int(form.cleaned_data['role_col'])
-            cotton_col = int(form.cleaned_data['cotton_col'])
-            soya_col = int(form.cleaned_data['soya_col'])
-            soghum_col = int(form.cleaned_data['soghum_col'])
+            acreage_col = int(form.cleaned_data['acreage_col'])
             cooperative_col = int(form.cleaned_data['cooperative_col'])
             district_col = int(form.cleaned_data['district_col'])
             county_col = int(form.cleaned_data['county_col'])
@@ -223,6 +221,7 @@ class MemberUploadExcel(ExtraContext, View):
                         return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
                
                     date_of_birth = (row[date_of_birth_col].value)
+
                     if date_of_birth:
                         try:
                             #print(date_of_birth)
@@ -232,7 +231,7 @@ class MemberUploadExcel(ExtraContext, View):
                             data['errors'] = '"%s" is not a valid Date of Birth (row %d): %s' % \
                             (date_of_birth, i+1, e)
                             return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
-                   
+
                     
                     phone_number = (row[phone_number_col].value)
                     if phone_number:
@@ -256,38 +255,28 @@ class MemberUploadExcel(ExtraContext, View):
                             (role, i+1)
                             return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
                     
-                    cotton = smart_str(row[cotton_col].value).strip()
-                    if not re.search('^[0-9\.]+$', cotton, re.IGNORECASE):
-                        data['errors'] = '"%s" is not a valid Cotton Acreage (row %d)' % \
-                        (cotton, i+1)
-                        return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
-                    
-                    soya = smart_str(row[soya_col].value).strip()
-                    if not re.search('^[0-9\.]+$', soya, re.IGNORECASE):
-                        data['errors'] = '"%s" is not a valid Soya Acreage (row %d)' % \
-                        (soya, i+1)
-                        return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
-        
-                    soghum = smart_str(row[soghum_col].value).strip()
-                    if not re.search('^[0-9\.]+$', soghum, re.IGNORECASE):
-                        data['errors'] = '"%s" is not a valid Soghum Acreage (row %d)' % \
-                        (soya, i+1)
-                        return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
+                    acreage = smart_str(row[acreage_col].value).strip()
+                    if acreage:
+                        if not re.search('^[0-9\.]+$', acreage, re.IGNORECASE):
+                            data['errors'] = '"%s" is not a valid  Acreage (row %d)' % \
+                            (acreage, i+1)
+                            return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
         
                     
                     cooperative = smart_str(row[cooperative_col].value).strip()
-                    if not re.search('^[A-Z\s\(\)\-\.]+$', cooperative, re.IGNORECASE):
-                        data['errors'] = '"%s" is not a valid Cooperative (row %d)' % \
-                        (cooperative, i+1)
-                        return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
-        
-                    try:
-                        cooperative = Cooperative.objects.get(name=cooperative)
-                    except Exception as e:
-                        log_error()
-                        data['errors'] = 'Cooperative "%s" Not found (row %d)' % \
-                        (cooperative, i+1)
-                        return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
+                    if cooperative:
+                        if not re.search('^[A-Z\s\(\)\-\.]+$', cooperative, re.IGNORECASE):
+                            data['errors'] = '"%s" is not a valid Cooperative (row %d)' % \
+                            (cooperative, i+1)
+                            return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
+
+                        try:
+                            cooperative = Cooperative.objects.get(name=cooperative)
+                        except Exception as e:
+                            log_error()
+                            data['errors'] = 'Cooperative "%s" Not found (row %d)' % \
+                            (cooperative, i+1)
+                            return render(request, self.template_name, {'active': 'system', 'form':form, 'error': data})
         
                     
                     district = smart_str(row[district_col].value).strip()
@@ -333,12 +322,10 @@ class MemberUploadExcel(ExtraContext, View):
                     
                     q = {'farmer_name': farmer_name ,
                          'gender': gender,
-                         'date_of_birth': date_of_birth,
+                         'date_of_birth': date_of_birth if date_of_birth else "1900-01-01",
                          'phone_number': phone_number,
                          'role': role,
-                         'cotton': cotton,
-                         'soya': soya,
-                         'soghum': soghum,
+                         'acreage': acreage if acreage else 0,
                          'cooperative': cooperative,
                          'district': district,
                          'county':county,
@@ -370,9 +357,7 @@ class MemberUploadExcel(ExtraContext, View):
                             parish = c.get('parish')
                             village = c.get('village')
                             phone_number = c.get('phone_number')
-                            cotton = c.get('cotton') if c.get('cotton') != '' else 0
-                            soya = c.get('soya') if c.get('soya') != '' else 0
-                            soghum = c.get('soghum') if c.get('soghum') != '' else 0
+                            acreage = c.get('acreage') if c.get('acreage') != '' else 0
                             phone_number = c.get('phone_number')
                             gender = c.get('gender')
                             role = c.get('role')
@@ -402,7 +387,7 @@ class MemberUploadExcel(ExtraContext, View):
                                     first_name = first_name,
                                     other_name = other_name,
                                     gender = gender,
-                                    member_id = self.generate_member_id(cooperative),
+                                    member_id = self.generate_member_id(gender),
                                     date_of_birth = date_of_birth,
                                     phone_number = phone_number if phone_number != '' else None,
                                     district = do,
@@ -411,13 +396,11 @@ class MemberUploadExcel(ExtraContext, View):
                                     parish = po,
                                     village = village,
                                     coop_role = role.title(),
-                                    cotton_acreage = cotton,
-                                    soya_beans_acreage = soya,
-                                    soghum_acreage = soghum,
+                                    land_acreage = acreage,
                                     create_by = request.user
                                 )
                                 
-                                message = message_template().member_registration
+                                # message = message_template().member_registration
                                 #if message:
                                 #    if re.search('<NAME>', message):
                                 #        if member.surname:
@@ -433,18 +416,25 @@ class MemberUploadExcel(ExtraContext, View):
                 
         data['form'] = form
         return render(request, self.template_name, data)
-    
-    
-    def generate_member_id(self, cooperative):
-        member = CooperativeMember.objects.all()
-        count = member.count() + 1
+
+    def generate_member_id(self, gender):
         today = datetime.today()
         datem = today.year
         yr = str(datem)[2:]
-        # idno = generate_numeric(size=4, prefix=str(m.cooperative.code)+yr)
-        fint = "%04d"%count
-        idno = str(cooperative.code)+yr+fint
-        log_debug("Cooperative %s code is %s" % (cooperative.code, idno))
+        m = datetime.today().strftime("%m")
+        member = CooperativeMember.objects.all()
+        count = member.count() + 1
+        fint = "%04d" % count
+        idno = "F{}{}{}{}".format(gender[:1], yr, m, fint)
+        idno = self.check_id(idno, member)
+        log_debug("ID %s " % (idno))
+        return idno
+
+    def check_id(self, idno, member):
+        member = member.filter(member_id=idno)
+        if member.exists():
+            count = count + 1
+            return self.check_id(idno)
         return idno
     
 

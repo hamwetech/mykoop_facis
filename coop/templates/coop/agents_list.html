@@ -7,6 +7,9 @@
         <div class="uk-width-medium-1-2">
             <h4 class="heading_a uk-margin-bottom">Agent List</h4>
         </div>
+        <div class="uk-width-medium-1-2 uk-text-right" >
+            <a href="{% url 'coop:agent_create' %}" class="md-btn md-btn-success ">Add Agent</a>
+        </div>
     </div>
     <div class="md-card uk-margin-medium-bottom">
         <div class="md-card-content">
@@ -45,11 +48,11 @@
                     <tbody>
                         {% for item in agent_summary %}
                             <tr>
-                                <td>{{ item.create_by__first_name }} {{ item.create_by__last_name }}</td>
-                                <td>{{ item.create_by__profile__msisdn }}</td>
-                                <td>{{ item.count }}</td>
-                                <td>{{ item.create_by__cooperative_admin__cooperative__name }}</td>
-                                <td>{{ item.create_by__profile__access_level__name }}</td>
+                                <td>{{ item.user.first_name }} {{ item.user.last_name }}</td>
+                                <td>{{ item.msisdn }}</td>
+                                <td>{{ item.members }}</td>
+                                <td>{{ item.cooperative_admin.cooperative.name }}</td>
+                                <td>{{ item.access_level }}</td>
                                 <td>
                                 </td>
                             </tr>

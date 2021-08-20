@@ -9,7 +9,8 @@ from conf.utils import bootstrapify, internationalize_number, PHONE_REGEX
 from coop.models import *
 from conf.models import District, SubCounty, Village, Parish, PaymentMethod
 from product.models import ProductVariation
-from userprofile.models import Profile
+from userprofile.models import Profile, AccessLevel
+from django.contrib.auth.models import User
 
 class CooperativeForm(forms.ModelForm):
     class Meta:
@@ -210,15 +211,13 @@ class MemberUploadForm(forms.Form):
     date_of_birth_col = forms.ChoiceField(label='Date of Birth Column', initial=2, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Date of birth')
     phone_number_col = forms.ChoiceField(label='Phone Number Column', initial=3, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Phone Number')
     role_col = forms.ChoiceField(label='Role Column', initial=4, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Cooperate Role')
-    cotton_col = forms.ChoiceField(label='Cotton Acreage Column', initial=5, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Cotton Acreage')
-    soya_col = forms.ChoiceField(label='Soya Acreage Column', initial=6, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Soya Acreage')
-    soghum_col = forms.ChoiceField(label='Soghum Acreage Column', initial=7, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Soghum Acreage')
-    cooperative_col = forms.ChoiceField(label='Cooperative Column', initial=8, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Cooperative')
-    district_col = forms.ChoiceField(label='Distric Column', initial=9, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the District')
-    county_col = forms.ChoiceField(label='County Column', initial=10, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the County')
-    sub_county_col = forms.ChoiceField(label='Sub County Column', initial=11, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Sub county')
-    parish_col = forms.ChoiceField(label='Parish Column', initial=12, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Parish')
-    village_col = forms.ChoiceField(label='Village Column', initial=13, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Village')
+    acreage_col = forms.ChoiceField(label='Acreage Column', initial=5, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Cotton Acreage')
+    cooperative_col = forms.ChoiceField(label='Cooperative Column', initial=6, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Cooperative')
+    district_col = forms.ChoiceField(label='Distric Column', initial=7, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the District')
+    county_col = forms.ChoiceField(label='County Column', initial=8, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the County')
+    sub_county_col = forms.ChoiceField(label='Sub County Column', initial=9, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Sub county')
+    parish_col = forms.ChoiceField(label='Parish Column', initial=10, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Parish')
+    village_col = forms.ChoiceField(label='Village Column', initial=11, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Village')
     # organisation_col = forms.ChoiceField(label='Organisation Column', initial=14, choices=choices, widget=forms.Select(attrs={'class':'form-control'}), help_text='The column containing the Organisation')
     
     
@@ -608,6 +607,55 @@ class AgentSearchForm(forms.Form):
         self.fields['cooperative'].choices = choices
 
 
+class AgentFormView(forms.ModelForm):
+    confirm_password = forms.CharField(max_length=150, required=True, widget=forms.PasswordInput)
+    password = forms.CharField(max_length=150, required=True, widget=forms.PasswordInput)
+    msisdn = forms.CharField(max_length=150)
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop("instance", None)
+        print(instance)
+        super(AgentFormView, self).__init__(*args, **kwargs)
+        if instance:
+            self.fields.pop('password')
+            self.fields.pop('confirm_password')
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'msisdn', 'is_active', 'username', 'password',
+                  'confirm_password']
+    # confirm_password = forms.CharField(max_length=150, required=True, widget=forms.PasswordInput)
+    # password = forms.CharField(max_length=150, required=True, widget=forms.PasswordInput)
+    #
+    # class Meta:
+    #     model = User
+    #     exclude = ['create_date', 'is_superuser']
+    #
+    # def __init__(self, *args, **kwargs):
+    #     super(AgentFormView, self).__init__(*args, **kwargs)
+    #     access_level = None
+    #     aq = AccessLevel.objects.filter(name='AGENT')
+    #     if aq.exists():
+    #         access_level = aq[0].id
+    #     # self.fields['access_level'].initial=access_level
+
+class AgentProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = Profile
+        exclude = ['create_date']
+
+    def __init__(self, *args, **kwargs):
+        super(AgentProfileForm, self).__init__(*args, **kwargs)
+        access_level = None
+        aq = AccessLevel.objects.filter(name='AGENT')
+        if aq.exists():
+            access_level = aq[0].id
+        self.fields['access_level'].initial=access_level
+
+
+bootstrapify(AgentProfileForm)
+bootstrapify(AgentFormView)
 bootstrapify(AgentSearchForm)
 bootstrapify(MemberOrderForm)
 bootstrapify(OrderItemForm)
