@@ -99,7 +99,7 @@
 
                 <hr>
 
-                {% if request.user.profile.is_cooperative or request.user.profile.is_supplier  %}
+                {% if request.user.profile.is_union or request.user.profile.is_cooperative or request.user.profile.is_supplier  %}
                     <li {% if '__item' in active %}class="current_section"{% endif %} title="Item">
                         <a href="{% url 'stock:item_list' %}">
                             <span class="menu_icon"><i class="material-icons">&#xE86F;</i></span>
@@ -107,7 +107,7 @@
                         </a>
                     </li>
                 {% endif %}
-                {% if request.user.profile.is_cooperative  %}
+                {% if request.user.profile.is_union or request.user.profile.is_cooperative  %}
                     <li {% if '_inventory' in active %}class="current_section"{% endif %} title="Supply Request">
                         <a href="{% url 'stock:inventory_list' %}">
                             <span class="menu_icon"><i class="material-icons">list_alt</i></span>
@@ -116,7 +116,7 @@
                     </li>
                 {% endif %}
 
-                {% if request.user.profile.is_cooperative  %}
+                {% if request.user.profile.is_union or request.user.profile.is_cooperative  %}
                     <li {% if '_order' in active %}class="current_section"{% endif %} title="Supply Request">
                         <a href="{% url 'coop:order_list' %}">
                             <span class="menu_icon"><i class="material-icons">shopping_cart</i></span>

@@ -101,7 +101,7 @@ class MemberOrderCreateView(View):
                         price += os.price
                     mo.order_price = price
                     mo.save()
-                    return redirect('coop:order_list')
+                    return redirect('coop:order_detail', mo.pk)
         except Exception as e:
             log_error()
         data = {
@@ -110,6 +110,7 @@ class MemberOrderCreateView(View):
             'active': ['_order'],
         }
         return render(request, self.template_name, data)
+
 
 
 class MemberOrderDetailView(ExtraContext, DetailView):
@@ -247,3 +248,21 @@ class OrderItemStatusView(View):
         if len(pending_items) == 0:
             order.status = "COMPLETED"
             order.save()
+
+
+class CheckOutOrderView(View):
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        status = self.kwargs.get('status')
+        today = datetime.datetime.today()
+        try:
+            order = MemberOrder.objects.get(pk=pk)
+            order.status = "COMPLETED"
+            order.approve_date = today
+            order.approved_by = request.user
+            order.save()
+            OrderItem.objects.filter(order=order).update(status="COLLECTED")
+        except Exception as e:
+            print(e)
+            log_error()
+        return redirect('coop:order_detail', pk=order.id)
