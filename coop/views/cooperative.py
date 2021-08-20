@@ -406,9 +406,10 @@ class AgentCreateView(ExtraContext, FormView):
                     access_level = aq[0]
                 profile.access_level = access_level
                 profile.save()
+                return super(AgentCreateView, self).form_valid(form)
         except Exception as e:
             print("ERROR %s " % e)
-        return super(AgentCreateView, self).form_valid(form)
+            return super(AgentCreateView, self).form_invalid(form)
         # return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
